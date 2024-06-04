@@ -11,20 +11,16 @@
 	<div class="container">
 		<div>
 			
-			<h1>Deck - {{.Deck.ID}}</h1>
+			<h1>Card - {{.Card.ID}}</h1>
 		</div>
 
 		<div id="intro">
-			{{.Deck.Title}}
+			Card
 		</div>
-
-		<ul>
-		{{range $card := .Deck.Cards}} 
-			<li>
-				<a href="/deck/{{$card.DeckID}}/card/{{$card.ID}}?answer=hide">{{$card.Question}}</a>
-			</li>
-		{{end}}
-		</ul>
+		<h3>Question</h3>
+		<div>{{.Card.Question}}</div>
+		<h3>Answer</h3>
+		<div>{{.Card.Answer}}</div>
 	</div>
 </body>
 </html>

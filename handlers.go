@@ -10,7 +10,7 @@ import (
 
 func addHandlers() {
 	http.HandleFunc("/", homePage)
-	http.HandleFunc("/decks/", deckPage)
+	http.HandleFunc("/deck/", deckPage)
 
 	addStaticAssetHandler()
 }
@@ -46,16 +46,39 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func deckPage(w http.ResponseWriter, r *http.Request) {
+	logs.debug("Deck page %s", r.RequestURI)
+	if strings.Contains(r.RequestURI, "/card/") {
+		cardPage(w, r)
+	} else {
+		deckID := lastPathElement(r.RequestURI)
 
-	deckID := lastPathElement(r.RequestURI)
+		logs.debug("Showing deck %s", deckID)
 
-	logs.debug("Showing deck %s", deckID)
+		data := pageData{
+			Deck: dataStore.getDeck(context.Background(), deckID),
+		}
+
+		showTemplatePage("deck", data, w)
+	}
+}
+
+func cardPage(w http.ResponseWriter, r *http.Request) {
+	cardID := lastPathElement(r.RequestURI)
+
+	path := strings.Replace(r.RequestURI, "/card/"+cardID, "", 1)
+
+	deckID := lastPathElement(path)
+
+	logs.debug("Showing card %s from deck %s", cardID, deckID)
+
+	deck := dataStore.getDeck(context.Background(), deckID)
+	card := deck.getCard(cardID)
 
 	data := pageData{
-		Deck: dataStore.getDeck(context.Background(), deckID),
+		Deck: deck,
+		Card: card,
 	}
-
-	showTemplatePage("deck", data, w)
+	showTemplatePage("card", data, w)
 }
 
 func lastPathElement(uri string) string {

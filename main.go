@@ -40,12 +40,13 @@ func main() {
 
 func setupTestData(store DataStore) {
 	testDeck := Deck{
-		ID: "TEST-CODE",
+		ID:    "TEST-CODE",
+		Title: "Test flashcard deck",
 	}
-	testDeck.addCard(Card{
-		ID:       randomCardId(),
-		Question: "Is the sun hot?",
-		Answer:   "Yes",
-	})
+
+	testDeck.addCard(Card{Question: "Is the sun hot?", Answer: "Yes"})
+	testDeck.addCard(Card{Question: "Is the pope catholic?", Answer: "Yes"})
+	testDeck.addCard(Card{Question: "How many chucks?", Answer: "42"})
+
 	store.putDeck(context.Background(), testDeck.ID, testDeck)
 }
