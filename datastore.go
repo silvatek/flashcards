@@ -9,6 +9,7 @@ import (
 type DataStore interface {
 	init(ctx context.Context)
 	getDeck(ctx context.Context, id string) Deck
+	putDeck(ctx context.Context, id string, deck Deck)
 }
 
 type TestDataStore struct {
@@ -32,4 +33,8 @@ func (store *TestDataStore) getDeck(ctx context.Context, id string) Deck {
 		store.decks[deck.ID] = deck
 	}
 	return deck
+}
+
+func (store *TestDataStore) putDeck(ctx context.Context, id string, deck Deck) {
+	store.decks[id] = deck
 }
