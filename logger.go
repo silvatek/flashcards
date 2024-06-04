@@ -27,7 +27,7 @@ func runningOnGCloud() bool {
 func (logger *Logger) init() {
 	if runningOnGCloud() {
 		logger.mode = GCLOUD_LOGS
-		logger.project = "Flashcards"
+		logger.project = "flashcards-425408"
 		client, err := logging.NewClient(context.Background(), logger.project)
 		if err == nil {
 			logger.client = client
