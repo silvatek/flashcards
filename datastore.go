@@ -8,6 +8,7 @@ import (
 
 type DataStore interface {
 	init(ctx context.Context)
+	summary() string
 	getDeck(ctx context.Context, id string) Deck
 	putDeck(ctx context.Context, id string, deck Deck)
 }
@@ -18,6 +19,10 @@ type TestDataStore struct {
 
 func randomId() string {
 	return fmt.Sprintf("%04X-%04X", rand.Intn(0xFFFF), rand.Intn(0xFFFF))
+}
+
+func (store *TestDataStore) summary() string {
+	return "TestDataStore"
 }
 
 func (store *TestDataStore) init(ctx context.Context) {

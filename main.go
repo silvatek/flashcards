@@ -49,4 +49,6 @@ func setupTestData(store DataStore) {
 	testDeck.addCard(Card{Question: "How many chucks?", Answer: "42"})
 
 	store.putDeck(context.Background(), testDeck.ID, testDeck)
+
+	logs.debug("Test data created in %s", store.summary())
 }
