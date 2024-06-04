@@ -32,6 +32,11 @@ func main() {
 }
 
 func setupTestData(store DataStore) {
+	if !store.isEmpty() {
+		logs.debug("Datastore is not empty so not adding test data")
+		return
+	}
+
 	testDeck := Deck{
 		ID:    "TEST-CODE",
 		Title: "Test flashcard deck",

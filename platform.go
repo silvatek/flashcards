@@ -20,7 +20,13 @@ func (platform *Platform) Logger() Logger {
 }
 
 func (platform *Platform) DataStore() DataStore {
-	store := new(TestDataStore)
-	store.init(context.Background())
-	return store
+	if platform.runningOnGCloud() {
+		store := new(FireDataStore)
+		store.init()
+		return store
+	} else {
+		store := new(TestDataStore)
+		store.init(context.Background())
+		return store
+	}
 }

@@ -7,10 +7,10 @@ import (
 )
 
 type DataStore interface {
-	init(ctx context.Context)
 	summary() string
 	getDeck(ctx context.Context, id string) Deck
 	putDeck(ctx context.Context, id string, deck Deck)
+	isEmpty() bool
 }
 
 type TestDataStore struct {
@@ -42,4 +42,8 @@ func (store *TestDataStore) getDeck(ctx context.Context, id string) Deck {
 
 func (store *TestDataStore) putDeck(ctx context.Context, id string, deck Deck) {
 	store.decks[id] = deck
+}
+
+func (store *TestDataStore) isEmpty() bool {
+	return (store.decks == nil) || (len(store.decks) == 0)
 }
