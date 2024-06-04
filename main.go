@@ -8,13 +8,6 @@ import (
 
 const defaultAddr = "127.0.0.1:8080"
 
-type pageData struct {
-	Message string
-	Error   string
-	Deck    Deck
-	Card    Card
-}
-
 var platform Platform
 var logs Logger = platform.Logger()
 var dataStore DataStore = platform.DataStore()
@@ -44,9 +37,11 @@ func setupTestData(store DataStore) {
 		Title: "Test flashcard deck",
 	}
 
-	testDeck.addCard(Card{Question: "Is the sun hot?", Answer: "Yes"})
-	testDeck.addCard(Card{Question: "Is the pope catholic?", Answer: "Yes"})
-	testDeck.addCard(Card{Question: "How many chucks?", Answer: "42"})
+	testDeck.addCard(Card{Question: "What Is the airspeed velocity of an unladen swallow?", Answer: "What do you mean? African or European swallow?"})
+	testDeck.addCard(Card{Question: "Is the pope catholic?", Answer: "Probably"})
+	testDeck.addCard(Card{Question: "What is the meaning of life?", Answer: "42"})
+	testDeck.addCard(Card{Question: "Should I stay or should I go?", Answer: "If I stay there will be trouble"})
+	testDeck.addCard(Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood??", Answer: "Lots"})
 
 	store.putDeck(context.Background(), testDeck.ID, testDeck)
 

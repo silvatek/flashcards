@@ -17,10 +17,22 @@
 		<div id="intro">
 			Card
 		</div>
+		
 		<h3>Question</h3>
 		<div>{{.Card.Question}}</div>
+
+		{{if .ShowAnswer}}
 		<h3>Answer</h3>
 		<div>{{.Card.Answer}}</div>
+		{{else}}
+			<a href="?answer=show"><button>Show answer</button></a>
+		{{end}}
+
+		<hr>
+		<div>
+			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> | 
+			<a href="/deck/{{.Deck.ID}}">Back to the deck</a>
+		</div>
 	</div>
 </body>
 </html>

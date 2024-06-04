@@ -8,9 +8,18 @@ import (
 	"strings"
 )
 
+type pageData struct {
+	Message    string
+	Error      string
+	Deck       Deck
+	Card       Card
+	ShowAnswer bool
+}
+
 func addHandlers() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/deck/", deckPage)
+	http.HandleFunc("/random", randomCard)
 
 	addStaticAssetHandler()
 }
@@ -75,10 +84,29 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 	card := deck.getCard(cardID)
 
 	data := pageData{
-		Deck: deck,
-		Card: card,
+		Deck:       deck,
+		Card:       card,
+		ShowAnswer: queryParam(r.RequestURI, "answer") == "show",
 	}
 	showTemplatePage("card", data, w)
+}
+
+func randomCard(w http.ResponseWriter, r *http.Request) {
+	deckId := queryParam(r.RequestURI, "deck")
+
+	deck := dataStore.getDeck(context.Background(), deckId)
+
+	if deck.ID == "" {
+		logs.error("Could not fetch deck %s", deckId)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	logs.info("Showing random card for %s", deck.Title)
+
+	card := deck.randomCard()
+
+	http.Redirect(w, r, "/deck/"+deckId+"/card/"+card.ID+"?answer=hide", http.StatusSeeOther)
 }
 
 func lastPathElement(uri string) string {
@@ -93,4 +121,28 @@ func lastPathElement(uri string) string {
 		return uri
 	}
 	return uri[lastSlash+1:]
+}
+
+func queryParam(uri string, param string) string {
+	queryStart := strings.Index(uri, "?")
+	if queryStart == -1 {
+		return ""
+	}
+	uri = uri[queryStart+1:]
+
+	paramStart := strings.Index(uri, param+"=")
+	if paramStart == -1 {
+		return ""
+	}
+	paramVal := uri[paramStart:]
+
+	valueStart := strings.Index(uri, "=")
+	paramVal = paramVal[valueStart+1:]
+
+	nextStart := strings.Index(paramVal, "&")
+	if nextStart > 0 {
+		paramVal = paramVal[0:nextStart]
+	}
+
+	return paramVal
 }
