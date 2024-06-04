@@ -18,16 +18,17 @@
 		</div>
 
 		<h3>Question</h3>
-		<div>{{.Card.Question}}</div>
+		<div>{{.Question}}</div>
 
 		{{if .ShowAnswer}}
 		<h3>Answer</h3>
-		<div>{{.Card.Answer}}</div>
+		<div>{{.Answer}}</div>
 		{{else}}
 			<div>
 				<a href="?answer=show"><button class="endbutton">Show answer</button></a>
 			</div>
 		{{end}}
+		
 		<div>&nbsp;</div>
 		<hr>
 		<div>

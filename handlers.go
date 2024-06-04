@@ -6,6 +6,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 type pageData struct {
@@ -14,6 +18,8 @@ type pageData struct {
 	Deck       Deck
 	Card       Card
 	ShowAnswer bool
+	Question   template.HTML
+	Answer     template.HTML
 }
 
 func addHandlers() {
@@ -88,8 +94,28 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 		Deck:       deck,
 		Card:       card,
 		ShowAnswer: queryParam(r.RequestURI, "answer") == "show",
+		Question:   renderMarkdown(card.Question),
+		Answer:     renderMarkdown(card.Answer),
 	}
 	showTemplatePage("card", data, w)
+}
+
+func renderMarkdown(source string) template.HTML {
+	// create markdown parser with extensions
+	extensions := parser.Tables | parser.Strikethrough
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse([]byte(source))
+
+	// create HTML renderer with extensions
+	htmlFlags := html.SkipLinks | html.SkipImages | html.SkipHTML
+	opts := html.RendererOptions{Flags: htmlFlags}
+	renderer := html.NewRenderer(opts)
+
+	rendered := string(markdown.Render(doc, renderer)[:])
+
+	// convert the HTML into a template fragment
+	htmlFragment := template.HTML(rendered)
+	return htmlFragment
 }
 
 func randomCard(w http.ResponseWriter, r *http.Request) {
