@@ -18,6 +18,7 @@
 			Title: {{.Deck.Title}}
 		</div>
 
+		<h3>Flashcards</h3>
 		<ul>
 		{{range $card := .Deck.Cards}} 
 			<li>
@@ -26,9 +27,11 @@
 		{{end}}
 		</ul>
 
+		<div>&nbsp;</div>
 		<hr>
 		<div>
-			<a href="/random?deck={{.Deck.ID}}">Show a random card</a>
+			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> |
+			<a href="/newcard?deck={{.Deck.ID}}">Add a new flashcard</a>
 		</div>
 	</div>
 </body>

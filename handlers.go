@@ -20,6 +20,7 @@ func addHandlers() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/deck/", deckPage)
 	http.HandleFunc("/random", randomCard)
+	http.HandleFunc("/newcard", addCard)
 
 	addStaticAssetHandler()
 }
@@ -107,6 +108,36 @@ func randomCard(w http.ResponseWriter, r *http.Request) {
 	card := deck.randomCard()
 
 	http.Redirect(w, r, "/deck/"+deckId+"/card/"+card.ID+"?answer=hide", http.StatusSeeOther)
+}
+
+func addCard(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		r.ParseForm()
+		deckID := r.Form.Get("deck_id")
+
+		deck := dataStore.getDeck(context.Background(), deckID)
+
+		card := Card{
+			ID:       randomCardId(),
+			DeckID:   deckID,
+			Question: r.Form.Get("question"),
+			Answer:   r.Form.Get("answer"),
+		}
+
+		deck.addCard(card)
+
+		dataStore.putDeck(context.Background(), deck.ID, deck)
+
+		http.Redirect(w, r, "/deck/"+deckID, http.StatusSeeOther)
+	} else {
+		deckID := queryParam(r.RequestURI, "deck")
+		logs.debug("Showing new card page for %s", deckID)
+		deck := dataStore.getDeck(context.Background(), deckID)
+		data := pageData{
+			Deck: deck,
+		}
+		showTemplatePage("newcard", data, w)
+	}
 }
 
 func lastPathElement(uri string) string {

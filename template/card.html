@@ -11,13 +11,9 @@
 	<div class="container">
 		<div>
 			
-			<h1>Card - {{.Card.ID}}</h1>
+			<h1>FlashCard - {{.Card.DeckID}} / {{.Card.ID}}</h1>
 		</div>
 
-		<div id="intro">
-			Card
-		</div>
-		
 		<h3>Question</h3>
 		<div>{{.Card.Question}}</div>
 
@@ -25,9 +21,11 @@
 		<h3>Answer</h3>
 		<div>{{.Card.Answer}}</div>
 		{{else}}
-			<a href="?answer=show"><button>Show answer</button></a>
+			<div>
+				<a href="?answer=show"><button class="endbutton">Show answer</button></a>
+			</div>
 		{{end}}
-
+		<div>&nbsp;</div>
 		<hr>
 		<div>
 			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> | 

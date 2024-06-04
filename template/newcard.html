@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards</title>
+<link rel="stylesheet" href="/static/flashcards.css">
+</head>
+
+<body>
+	<div class="container">
+		<div>
+			
+			<h1>FlashCard - {{.Deck.ID}} / NEW</h1>
+		</div>
+
+		<form method="POST" action="/newcard">
+		<input type="hidden" id="deck_id" name="deck_id" value="{{.Deck.ID}}">
+
+		<h3>Question</h3>
+		<textarea autofocus="true" id="question" name="question" required="true"></textarea>
+
+		
+		<h3>Answer</h3>
+		<textarea id="answer" name="answer"></textarea>
+
+		<div>
+			<input type="submit" class="endbutton">
+		</div>
+	</form>
+	</div>
+</body>
+</html>
