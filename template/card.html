@@ -9,9 +9,12 @@
 
 <body>
 	<div class="container">
+		<div>			
+			<h1>FlashCard</h1>
+		</div>
+
 		<div>
-			
-			<h1>FlashCard - {{.Card.DeckID}} / {{.Card.ID}}</h1>
+			{{.Deck.Title}}
 		</div>
 
 		<h3>Question</h3>
@@ -31,6 +34,9 @@
 			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> | 
 			<a href="/deck/{{.Deck.ID}}">Back to the deck</a>
 		</div>
+		<hr>
+		<div  class="id_bar">{{.Card.DeckID}} / {{.Card.ID}}<div>
+		
 	</div>
 </body>
 </html>

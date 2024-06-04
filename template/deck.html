@@ -11,11 +11,11 @@
 	<div class="container">
 		<div>
 			
-			<h1>Deck - {{.Deck.ID}}</h1>
+			<h1>Flash Card Deck</h1>
 		</div>
 
 		<div id="intro">
-			Title: {{.Deck.Title}}
+			{{.Deck.Title}}
 		</div>
 
 		<h3>Flashcards</h3>
@@ -33,6 +33,8 @@
 			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> |
 			<a href="/newcard?deck={{.Deck.ID}}">Add a new flashcard</a>
 		</div>
+		<hr>
+		<div class="id_bar">{{.Deck.ID}}</div>
 	</div>
 </body>
 </html>

@@ -137,6 +137,11 @@ code {
   	justify-content: space-between;
 }
 
+.id_bar {
+	font-family: monospace;
+	font-size: small;
+}
+
 .leftlink {
 	float: left;
 }

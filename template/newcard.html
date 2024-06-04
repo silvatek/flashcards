@@ -9,25 +9,34 @@
 
 <body>
 	<div class="container">
+		<div>			
+			<h1>Add a new flash card</h1>
+		</div>
+
 		<div>
-			
-			<h1>FlashCard - {{.Deck.ID}} / NEW</h1>
+			Deck: {{.Deck.Title}}
 		</div>
 
 		<form method="POST" action="/newcard">
-		<input type="hidden" id="deck_id" name="deck_id" value="{{.Deck.ID}}">
+			<input type="hidden" id="deck_id" name="deck_id" value="{{.Deck.ID}}">
 
-		<h3>Question</h3>
-		<textarea autofocus="true" id="question" name="question" required="true"></textarea>
+			<h3>Question</h3>
+			<textarea autofocus="true" id="question" name="question" required="true"></textarea>
 
-		
-		<h3>Answer</h3>
-		<textarea id="answer" name="answer"></textarea>
+			
+			<h3>Answer</h3>
+			<textarea id="answer" name="answer"></textarea>
 
-		<div>
-			<input type="submit" class="endbutton">
-		</div>
-	</form>
+			<div>
+				<input type="submit" class="endbutton">
+			</div>
+
+			<div>
+				&nbsp;
+				<hr>
+				<div class="id_bar">{{.Deck.ID}}</div>
+			</div>
+		</form>
 	</div>
 </body>
 </html>
