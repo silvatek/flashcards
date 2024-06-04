@@ -9,8 +9,8 @@ type Platform struct {
 }
 
 func (platform *Platform) runningOnGCloud() bool {
-	gCloudServiceName := os.Getenv("K_SERVICE")
-	return len(gCloudServiceName) > 0
+	projectId := os.Getenv("GCLOUD_PROJECT")
+	return len(projectId) > 0
 }
 
 func (platform *Platform) Logger() Logger {
@@ -21,7 +21,7 @@ func (platform *Platform) Logger() Logger {
 
 func (platform *Platform) DataStore() DataStore {
 	if platform.runningOnGCloud() {
-		store := new(FireDataStore)
+		store := fireDataStore()
 		store.init()
 		return store
 	} else {

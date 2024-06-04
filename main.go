@@ -9,11 +9,13 @@ import (
 const defaultAddr = "127.0.0.1:8080"
 
 var platform Platform
-var logs Logger = platform.Logger()
-var dataStore DataStore = platform.DataStore()
+var logs Logger
+var dataStore DataStore
 
 // main starts an http server on the $PORT environment variable.
 func main() {
+	logs = platform.Logger()
+	dataStore = platform.DataStore()
 	setupTestData(dataStore)
 
 	addr := defaultAddr
