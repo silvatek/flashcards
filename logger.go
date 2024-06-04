@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"cloud.google.com/go/logging"
 )
@@ -19,13 +18,8 @@ type Logger struct {
 	logs    *logging.Logger
 }
 
-func runningOnGCloud() bool {
-	gCloudServiceName := os.Getenv("K_SERVICE")
-	return len(gCloudServiceName) > 0
-}
-
 func (logger *Logger) init() {
-	if runningOnGCloud() {
+	if platform.runningOnGCloud() {
 		logger.mode = GCLOUD_LOGS
 		logger.project = "flashcards-425408"
 		client, err := logging.NewClient(context.Background(), logger.project)
