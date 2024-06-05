@@ -24,17 +24,23 @@
 			<div>
 				<a href="/random?deck={{.Deck.ID}}"><button class="endbutton">Move on</button></a>
 				<a href="?answer=hide"><button class="endbutton">Retry</button></a>
+				<div class="clearfloat"></div>
 			</div>
+			
 			<h3>Answer</h3>
 			<div>{{.Answer}}</div>
 		{{else}}
 			<div>
 				<a href="?answer=show"><button class="endbutton">Show answer</button></a>
+				<div class="clearfloat"></div>
 			</div>
 		{{end}}
 		
-		<div>&nbsp;</div>
-		<hr>
+		<div>
+			&nbsp;
+			<hr>
+		</div>
+		
 		<div>
 			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> | 
 			<a href="/deck/{{.Deck.ID}}">Back to the deck</a>

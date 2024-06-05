@@ -147,9 +147,20 @@ code {
 }
 
 .endbutton {
-	padding-top: 3px;
-	float: right;
-	margin-left: 6px;
+    float: right;
+	margin-top: 3px;
+    margin-left: 6px;
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+.endbutton:hover {
+	background-color: grey;
+	color: white;
+}
+
+.clearfloat {
+	clear: both;
 }
 
 table, th, td {
