@@ -20,6 +20,7 @@ type pageData struct {
 	ShowAnswer bool
 	Question   template.HTML
 	Answer     template.HTML
+	FormAction string
 }
 
 func addHandlers() {
@@ -27,6 +28,7 @@ func addHandlers() {
 	http.HandleFunc("/deck/", deckPage)
 	http.HandleFunc("/random", randomCard)
 	http.HandleFunc("/newcard", addCard)
+	http.HandleFunc("/editcard", editCard)
 
 	addStaticAssetHandler()
 }
@@ -160,9 +162,47 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 		logs.debug("Showing new card page for %s", deckID)
 		deck := dataStore.getDeck(context.Background(), deckID)
 		data := pageData{
-			Deck: deck,
+			Deck:       deck,
+			Card:       *new(Card),
+			FormAction: "/newcard",
 		}
-		showTemplatePage("newcard", data, w)
+		showTemplatePage("editcard", data, w)
+	}
+}
+
+func editCard(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		r.ParseForm()
+		deckID := r.Form.Get("deck_id")
+		cardID := r.Form.Get("card_id")
+
+		logs.info("Received edit for card %s in deck %s", cardID, deckID)
+
+		deck := dataStore.getDeck(context.Background(), deckID)
+
+		card := deck.getCard(cardID)
+
+		card.Question = r.Form.Get("question")
+		card.Answer = r.Form.Get("answer")
+
+		logs.debug("New answer: %s", card.Answer)
+
+		deck.putCard(card.ID, card)
+
+		dataStore.putDeck(context.Background(), deck.ID, deck)
+
+		http.Redirect(w, r, "/deck/"+deckID+"/card/"+cardID+"?answer=show", http.StatusSeeOther)
+	} else {
+		deckID := queryParam(r.RequestURI, "deck")
+		cardID := queryParam(r.RequestURI, "card")
+		logs.debug("Showing edit card page for %s / %s", deckID, cardID)
+		deck := dataStore.getDeck(context.Background(), deckID)
+		data := pageData{
+			Deck:       deck,
+			Card:       deck.getCard(cardID),
+			FormAction: "/editcard",
+		}
+		showTemplatePage("editcard", data, w)
 	}
 }
 

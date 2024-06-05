@@ -18,15 +18,16 @@
 			{{.Deck.Title}}
 		</div>
 
-		<form method="POST" action="/newcard">
+		<form method="POST" action="{{.FormAction}}">
 			<input type="hidden" id="deck_id" name="deck_id" value="{{.Deck.ID}}">
+			<input type="hidden" id="card_id" name="card_id" value="{{.Card.ID}}">
 
 			<h3>Question</h3>
-			<textarea autofocus="true" id="question" name="question" required="true"></textarea>
+			<textarea autofocus="true" id="question" name="question" required="true">{{.Card.Question}}</textarea>
 
 			
 			<h3>Answer</h3>
-			<textarea id="answer" name="answer"></textarea>
+			<textarea id="answer" name="answer">{{.Card.Answer}}</textarea>
 
 			<div>
 				<input type="submit" class="endbutton">
