@@ -149,6 +149,7 @@ code {
 .endbutton {
 	padding-top: 3px;
 	float: right;
+	margin-left: 6px;
 }
 
 table, th, td {
