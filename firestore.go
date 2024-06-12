@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 )
 
 const DECK_COLLECTION = "Decks"
+const KEYS_COLLECTION = "Keys"
 
 type FireDataStore struct {
 	Client   *firestore.Client
@@ -84,4 +86,13 @@ func (store *FireDataStore) isEmpty() bool {
 	decks := store.Client.Collection(DECK_COLLECTION)
 	_, err := decks.Documents(context.Background()).Next()
 	return err == iterator.Done
+}
+
+func (store *FireDataStore) isValidAuthor(key string) bool {
+	doc := store.Client.Doc(DECK_COLLECTION + "/" + strings.TrimSpace(key))
+	keyDoc, err := doc.Get(context.Background())
+	if err != nil {
+		return false
+	}
+	return keyDoc.Data()["role"] == "author"
 }

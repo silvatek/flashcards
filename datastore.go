@@ -11,6 +11,7 @@ type DataStore interface {
 	getDeck(ctx context.Context, id string) Deck
 	putDeck(ctx context.Context, id string, deck Deck)
 	isEmpty() bool
+	isValidAuthor(key string) bool
 }
 
 type TestDataStore struct {
@@ -46,4 +47,8 @@ func (store *TestDataStore) putDeck(ctx context.Context, id string, deck Deck) {
 
 func (store *TestDataStore) isEmpty() bool {
 	return (store.decks == nil) || (len(store.decks) == 0)
+}
+
+func (store *TestDataStore) isValidAuthor(key string) bool {
+	return key == "guessme"
 }

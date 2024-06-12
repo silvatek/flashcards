@@ -225,7 +225,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 func newDeck(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	if r.Form.Get("author") != "guessme" {
+	if !dataStore.isValidAuthor(r.Form.Get("author")) {
 		logs.info("Attempt to create a new deck without a valid author code")
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
