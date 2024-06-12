@@ -16,16 +16,41 @@
 		</div>
 
 		<div id="intro">
-			Learning with Flashcards
+			<div>
+				Learning with Flashcards. 
+			</div>
+			<div>
+				Cards are organised into decks, and each card has a question, an answer, 
+				and (optionally) a hint.
+			</div>
+			<div>
+				You can test yourself with randomly selected cards from the deck.
+			</div>
 		</div>
 
 		<h3>Open a deck</h3>
 		<div>You can open an existing deck if you know the code for it.</div>
 		<form method="get" action="/decks" id="selectdeck">
-			<label for="deck">Deck code:</label>
+			<label for="deck" class="formlabel">Deck code:</label>
 			<input type="text" id="deck" name="deck" size="12">
 			<br>
-			<input type="submit" id="submit" value="Open">
+			<div class="formlabel"></div>
+			<input type="submit" id="select" value="Open">
+		</form>
+
+		<h3>You can create a new deck if you have an author key.</h3>
+		<div>A code for the new deck will be assigned automatically.</div>
+		<form method="post" action="/newdeck" id="newdeck">
+			<label for="author" class="formlabel">Author key:</label>
+			<input type="text" id="author" name="author" size="12">
+			<br>
+
+			<label for="title" class="formlabel">Deck title:</label>
+			<input type="text" id="title" name="title" size="40">
+
+			<br>
+			<div class="formlabel"></div>
+			<input type="submit" id="create" value="Create">
 		</form>
 	</div>
 </body>

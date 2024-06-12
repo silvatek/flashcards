@@ -17,7 +17,7 @@ type TestDataStore struct {
 	decks map[string]Deck
 }
 
-func randomId() string {
+func randomDeckId() string {
 	return fmt.Sprintf("%04X-%04X", rand.Intn(0xFFFF), rand.Intn(0xFFFF))
 }
 

@@ -31,6 +31,7 @@ func addHandlers() {
 	http.HandleFunc("/random", randomCard)
 	http.HandleFunc("/newcard", addCard)
 	http.HandleFunc("/editcard", editCard)
+	http.HandleFunc("/newdeck", newDeck)
 
 	addStaticAssetHandler()
 }
@@ -56,10 +57,10 @@ func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
 
 // show home/index page
 func homePage(w http.ResponseWriter, r *http.Request) {
-	logs.info("Received request: %s %s", r.Method, r.URL.Path)
+	logs.debug("Received request: %s %s", r.Method, r.URL.Path)
 
 	data := pageData{
-		Message: "Ice Hockey Scoresheet",
+		Message: "Fashcards",
 	}
 
 	showTemplatePage("index", data, w)
@@ -219,6 +220,27 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 		}
 		showTemplatePage("editcard", data, w)
 	}
+}
+
+func newDeck(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	if r.Form.Get("author") != "guessme" {
+		logs.info("Attempt to create a new deck without a valid author code")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	deck := Deck{
+		ID:    randomDeckId(),
+		Title: r.Form.Get("title"),
+	}
+
+	logs.info("Creating deck %s with title %s", deck.ID, deck.Title)
+
+	dataStore.putDeck(context.Background(), deck.ID, deck)
+
+	http.Redirect(w, r, "/deck/"+deck.ID, http.StatusSeeOther)
 }
 
 func lastPathElement(uri string) string {
