@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
+	"github.com/skip2/go-qrcode"
 )
 
 type pageData struct {
@@ -18,6 +20,7 @@ type pageData struct {
 	Deck       Deck
 	Card       Card
 	Show       string
+	Share      string
 	Question   template.HTML
 	Answer     template.HTML
 	Hint       template.HTML
@@ -32,6 +35,7 @@ func addHandlers() {
 	http.HandleFunc("/newcard", addCard)
 	http.HandleFunc("/editcard", editCard)
 	http.HandleFunc("/newdeck", newDeck)
+	http.HandleFunc("/qrcode", qrCodeGenerator)
 
 	addStaticAssetHandler()
 }
@@ -80,11 +84,25 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 
 		logs.debug("Showing deck %s", deckID)
 
+		var shareUrl string
+		if queryParam(r.RequestURI, "share") == "true" {
+			shareUrl = deckUrl(r, deckID)
+		}
+
 		data := pageData{
-			Deck: dataStore.getDeck(context.Background(), deckID),
+			Deck:  dataStore.getDeck(context.Background(), deckID),
+			Share: shareUrl,
 		}
 
 		showTemplatePage("deck", data, w)
+	}
+}
+
+func deckUrl(r *http.Request, deckID string) string {
+	if r.Host == "localhost:8080" {
+		return fmt.Sprintf("http://localhost:8080/deck/%s", deckID)
+	} else {
+		return fmt.Sprintf("https://%s/deck/%s", r.Host, deckID)
 	}
 }
 
@@ -279,4 +297,22 @@ func queryParam(uri string, param string) string {
 	}
 
 	return paramVal
+}
+
+func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
+	deckID := queryParam(r.RequestURI, "deck")
+
+	gameUrl := deckUrl(r, deckID)
+
+	tempFileName := os.Getenv("TMPDIR") + "/" + deckID + ".png"
+
+	qrcode.WriteFile(gameUrl, qrcode.High, 320, tempFileName)
+	defer os.Remove(tempFileName)
+
+	content, _ := os.ReadFile(tempFileName)
+
+	headers := w.Header()
+	headers.Add("Content-Type", "image/png")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(content))
 }

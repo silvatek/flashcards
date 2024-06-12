@@ -19,6 +19,12 @@
 			{{.Deck.Title}}
 		</div>
 
+		{{if .Share}}
+			Access this page at <a href="{{.Share}}">{{.Share}}</a>
+			<br>
+			<img src="/qrcode?deck={{.Deck.ID}}" height="160" width="160">
+		{{end}}
+
 		<h3>Flashcards</h3>
 		<ul>
 		{{range $card := .Deck.Cards}} 
@@ -32,6 +38,7 @@
 		<hr>
 		<div>
 			<a href="/">Home</a> |
+			<a href="/deck/{{.Deck.ID}}?share=true">Share</a> |
 			<a href="/random?deck={{.Deck.ID}}">Show a random card</a> |
 			<a href="/newcard?deck={{.Deck.ID}}">Add a new flashcard</a>
 		</div>
