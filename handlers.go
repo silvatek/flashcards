@@ -225,15 +225,15 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 func newDeck(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	if !dataStore.isValidAuthor(r.Form.Get("author")) {
-		logs.info("Attempt to create a new deck without a valid author code")
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
 	deck := Deck{
 		ID:    randomDeckId(),
 		Title: r.Form.Get("title"),
+	}
+
+	if !dataStore.isValidAuthor(r.Form.Get("author")) {
+		logs.info("Attempt to create a new deck without a valid author code (%s)", deck.Title)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	logs.info("Creating deck %s with title %s", deck.ID, deck.Title)

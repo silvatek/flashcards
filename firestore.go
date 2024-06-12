@@ -92,7 +92,12 @@ func (store *FireDataStore) isValidAuthor(key string) bool {
 	doc := store.Client.Doc(DECK_COLLECTION + "/" + strings.TrimSpace(key))
 	keyDoc, err := doc.Get(context.Background())
 	if err != nil {
+		logs.info("Author key not found")
 		return false
 	}
-	return keyDoc.Data()["role"] == "author"
+	if keyDoc.Data()["role"] != "author" {
+		logs.info("Key does not have author role")
+		return false
+	}
+	return true
 }
