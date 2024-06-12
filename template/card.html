@@ -34,7 +34,11 @@
 		
 		{{if eq .Show "hint"}}
 			<h3>Hint</h3>
-			<div>{{.Hint}}</div>
+			{{if .Hint}}
+				<div>{{.Hint}}</div>
+			{{else}}
+				<div>There is no hint for this question</div>
+			{{end}}
 			<div>
 				<a href="?answer=show"><button class="endbutton">Show answer</button></a>
 				<div class="clearfloat"></div>

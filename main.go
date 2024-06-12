@@ -47,7 +47,7 @@ func setupTestData(store DataStore) {
 	testDeck.addCard(Card{Question: "What Is the airspeed velocity of an unladen swallow?", Answer: "What do you mean? African or European swallow?", Hint: "Question"})
 	testDeck.addCard(Card{Question: "What is the meaning of life?", Answer: "42", Hint: "Number"})
 	testDeck.addCard(Card{Question: "Should I stay or should I go?", Answer: "If I stay there will be trouble", Hint: "Clash"})
-	testDeck.addCard(Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood??", Answer: "Much wood would be chucked", Hint: "Woody"})
+	testDeck.addCard(Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood?", Answer: "Much wood would be chucked"})
 
 	testDeck.addCard(Card{Question: "Does `Markdown` work?",
 		Answer: `Some features do, including...
