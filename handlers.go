@@ -17,9 +17,10 @@ type pageData struct {
 	Error      string
 	Deck       Deck
 	Card       Card
-	ShowAnswer bool
+	Show       string
 	Question   template.HTML
 	Answer     template.HTML
+	Hint       template.HTML
 	FormAction string
 }
 
@@ -92,12 +93,18 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 	deck := dataStore.getDeck(context.Background(), deckID)
 	card := deck.getCard(cardID)
 
+	show := strings.ToLower(queryParam(r.RequestURI, "answer"))
+	if show == "" {
+		show = "none"
+	}
+
 	data := pageData{
-		Deck:       deck,
-		Card:       card,
-		ShowAnswer: queryParam(r.RequestURI, "answer") == "show",
-		Question:   renderMarkdown(card.Question),
-		Answer:     renderMarkdown(card.Answer),
+		Deck:     deck,
+		Card:     card,
+		Show:     show,
+		Question: renderMarkdown(card.Question),
+		Answer:   renderMarkdown(card.Answer),
+		Hint:     renderMarkdown(card.Hint),
 	}
 	showTemplatePage("card", data, w)
 }
@@ -150,6 +157,7 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 			DeckID:   deckID,
 			Question: r.Form.Get("question"),
 			Answer:   r.Form.Get("answer"),
+			Hint:     r.Form.Get("hint"),
 		}
 
 		deck.addCard(card)
@@ -184,6 +192,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		card.Question = r.Form.Get("question")
 		card.Answer = r.Form.Get("answer")
+		card.Hint = r.Form.Get("hint")
 
 		logs.debug("New answer: %s", card.Answer)
 

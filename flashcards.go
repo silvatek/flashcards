@@ -10,6 +10,7 @@ type Card struct {
 	DeckID   string
 	Question string
 	Answer   string
+	Hint     string
 }
 
 type Deck struct {

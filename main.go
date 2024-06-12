@@ -44,10 +44,10 @@ func setupTestData(store DataStore) {
 		Title: "Test flashcard deck",
 	}
 
-	testDeck.addCard(Card{Question: "What Is the airspeed velocity of an unladen swallow?", Answer: "What do you mean? African or European swallow?"})
-	testDeck.addCard(Card{Question: "What is the meaning of life?", Answer: "42"})
-	testDeck.addCard(Card{Question: "Should I stay or should I go?", Answer: "If I stay there will be trouble"})
-	testDeck.addCard(Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood??", Answer: "Much wood would be chucked"})
+	testDeck.addCard(Card{Question: "What Is the airspeed velocity of an unladen swallow?", Answer: "What do you mean? African or European swallow?", Hint: "Question"})
+	testDeck.addCard(Card{Question: "What is the meaning of life?", Answer: "42", Hint: "Number"})
+	testDeck.addCard(Card{Question: "Should I stay or should I go?", Answer: "If I stay there will be trouble", Hint: "Clash"})
+	testDeck.addCard(Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood??", Answer: "Much wood would be chucked", Hint: "Woody"})
 
 	testDeck.addCard(Card{Question: "Does `Markdown` work?",
 		Answer: `Some features do, including...
@@ -61,7 +61,7 @@ func setupTestData(store DataStore) {
 3. Also
 4. Work
 
-But [links](http://some.bad.site/) are disabled`})
+But [links](http://some.bad.site/) are disabled`, Hint: "Formatting"})
 
 	store.putDeck(context.Background(), testDeck.ID, testDeck)
 

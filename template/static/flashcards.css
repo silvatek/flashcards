@@ -146,6 +146,19 @@ code {
 	float: left;
 }
 
+.leftbutton {
+    float: left;
+	margin-top: 3px;
+    margin-left: 6px;
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+.leftbutton:hover {
+	background-color: grey;
+	color: white;
+}
+
 .endbutton {
     float: right;
 	margin-top: 3px;
