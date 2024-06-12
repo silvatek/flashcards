@@ -25,7 +25,10 @@ type pageData struct {
 	Answer     template.HTML
 	Hint       template.HTML
 	FormAction string
+	History    []string
 }
+
+const HISTORY_COOKIE = "deckHistory"
 
 func addHandlers() {
 	http.HandleFunc("/", homePage)
@@ -65,6 +68,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 	data := pageData{
 		Message: "Fashcards",
+		History: getHistory(HISTORY_COOKIE, r).entries,
 	}
 
 	showTemplatePage("index", data, w)
@@ -93,6 +97,10 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 			Deck:  dataStore.getDeck(context.Background(), deckID),
 			Share: shareUrl,
 		}
+
+		history := getHistory(HISTORY_COOKIE, r)
+		history.push(deckID)
+		history.setCookie(w)
 
 		showTemplatePage("deck", data, w)
 	}

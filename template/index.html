@@ -52,6 +52,20 @@
 			<div class="formlabel"></div>
 			<input type="submit" id="create" value="Create">
 		</form>
+
+		{{if gt (len .History) 0}}
+		<h3>Recent decks</h3>
+		<div>You have recently accessed the following decks on this device:-</div>
+		<ul>
+			{{range $deck := .History}} 
+			{{if $deck}}
+				<li>
+					<a href="/deck/{{$deck}}">{{$deck}}</a>
+				</li>
+				{{end}}
+			{{end}}
+		</ul>
+		{{end}}
 	</div>
 </body>
 </html>
