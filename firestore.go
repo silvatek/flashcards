@@ -89,7 +89,7 @@ func (store *FireDataStore) isEmpty() bool {
 }
 
 func (store *FireDataStore) isValidAuthor(key string) bool {
-	doc := store.Client.Doc(DECK_COLLECTION + "/" + strings.TrimSpace(key))
+	doc := store.Client.Doc(KEYS_COLLECTION + "/" + strings.TrimSpace(key))
 	keyDoc, err := doc.Get(context.Background())
 	if err != nil {
 		logs.info("Author key not found")
