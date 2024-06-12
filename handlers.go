@@ -26,6 +26,7 @@ type pageData struct {
 
 func addHandlers() {
 	http.HandleFunc("/", homePage)
+	http.HandleFunc("/decks", deckRedirect)
 	http.HandleFunc("/deck/", deckPage)
 	http.HandleFunc("/random", randomCard)
 	http.HandleFunc("/newcard", addCard)
@@ -62,6 +63,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	showTemplatePage("index", data, w)
+}
+
+func deckRedirect(w http.ResponseWriter, r *http.Request) {
+	deckId := strings.ToUpper(queryParam(r.RequestURI, "deck"))
+	http.Redirect(w, r, "/deck/"+deckId, http.StatusSeeOther)
 }
 
 func deckPage(w http.ResponseWriter, r *http.Request) {

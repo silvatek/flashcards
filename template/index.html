@@ -3,7 +3,7 @@
 <head>
 <meta charset=utf-8>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flashcards</title>
+<title>Flashcards - Home</title>
 <link rel="stylesheet" href="/static/flashcards.css">
 <link href="/static/flashcards.svg" rel="icon" type="image/svg" />
 </head>
@@ -18,6 +18,15 @@
 		<div id="intro">
 			Learning with Flashcards
 		</div>
+
+		<h3>Open a deck</h3>
+		<div>You can open an existing deck if you know the code for it.</div>
+		<form method="get" action="/decks" id="selectdeck">
+			<label for="deck">Deck code:</label>
+			<input type="text" id="deck" name="deck" size="12">
+			<br>
+			<input type="submit" id="submit" value="Open">
+		</form>
 	</div>
 </body>
 </html>
