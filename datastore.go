@@ -34,9 +34,6 @@ func (store *TestDataStore) getDeck(ctx context.Context, id string) Deck {
 	deck, ok := store.decks[id]
 	if !ok {
 		deck = *new(Deck)
-		deck.ID = id
-		deck.Title = "Test deck"
-		store.decks[deck.ID] = deck
 	}
 	return deck
 }

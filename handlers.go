@@ -38,6 +38,7 @@ func addHandlers() {
 	http.HandleFunc("/newcard", addCard)
 	http.HandleFunc("/editcard", editCard)
 	http.HandleFunc("/newdeck", newDeck)
+	http.HandleFunc("/error", errorPage)
 	http.HandleFunc("/qrcode", qrCodeGenerator)
 
 	addStaticAssetHandler()
@@ -98,6 +99,11 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 			Share: shareUrl,
 		}
 
+		if data.Deck.ID != deckID {
+			http.Redirect(w, r, "/error?code=2001", http.StatusSeeOther)
+			return
+		}
+
 		history := getHistory(HISTORY_COOKIE, r)
 		history.push(deckID)
 		history.setCookie(w)
@@ -124,7 +130,18 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 	logs.debug("Showing card %s from deck %s", cardID, deckID)
 
 	deck := dataStore.getDeck(context.Background(), deckID)
+
+	if deck.ID != deckID {
+		http.Redirect(w, r, "/error?code=2001", http.StatusSeeOther)
+		return
+	}
+
 	card := deck.getCard(cardID)
+
+	if card.ID != cardID {
+		http.Redirect(w, r, "/error?code=2002", http.StatusSeeOther)
+		return
+	}
 
 	show := strings.ToLower(queryParam(r.RequestURI, "answer"))
 	if show == "" {
@@ -257,8 +274,7 @@ func newDeck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !dataStore.isValidAuthor(r.Form.Get("author")) {
-		logs.info("Attempt to create a new deck without a valid author code (%s)", deck.Title)
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/error?code=3001", http.StatusSeeOther)
 		return
 	}
 
@@ -267,6 +283,15 @@ func newDeck(w http.ResponseWriter, r *http.Request) {
 	dataStore.putDeck(context.Background(), deck.ID, deck)
 
 	http.Redirect(w, r, "/deck/"+deck.ID, http.StatusSeeOther)
+}
+
+func errorPage(w http.ResponseWriter, r *http.Request) {
+	errorCode := queryParam(r.RequestURI, "code")
+	data := pageData{
+		Error: errorText(errorCode),
+	}
+	logs.info("Showing error page %s %s", errorCode, data.Error)
+	showTemplatePage("error", data, w)
 }
 
 func lastPathElement(uri string) string {
