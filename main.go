@@ -6,23 +6,17 @@ import (
 	"os"
 )
 
-const defaultAddr = "127.0.0.1:8080"
-
 var platform Platform
 var logs Logger
 var dataStore DataStore
 
 // main starts an http server on the $PORT environment variable.
 func main() {
-	logs = platform.Logger()
-	dataStore = platform.DataStore()
+	addr := platform.listenAddress()
+	logs = platform.logger()
+	dataStore = platform.dataStore()
 	setupTestData(dataStore)
 
-	addr := defaultAddr
-	// $PORT environment variable is provided in the Kubernetes deployment.
-	if p := os.Getenv("PORT"); p != "" {
-		addr = ":" + p
-	}
 	logs.info("Server listening on port %s", addr)
 
 	addHandlers()
