@@ -10,23 +10,23 @@ func TestDataStoreFunctionality(t *testing.T) {
 
 	var ds TestDataStore
 
-	if ds.summary() != "TestDataStore" {
-		t.Errorf("Unexpected datastore summary: %s", ds.summary())
+	if ds.Summary() != "TestDataStore" {
+		t.Errorf("Unexpected datastore summary: %s", ds.Summary())
 	}
 
 	ds.init(ctx)
 
-	if !ds.isEmpty() {
+	if !ds.IsEmpty() {
 		t.Error("Datastore was not empty at start of test")
 	}
 
 	setupTestData(&ds)
 
-	if ds.isEmpty() {
+	if ds.IsEmpty() {
 		t.Error("Datastore empty after test data")
 	}
 
-	deck := ds.getDeck(ctx, "TEST-CODE")
+	deck := ds.GetDeck(ctx, "TEST-CODE")
 
 	if deck.ID != "TEST-CODE" {
 		t.Errorf("Unexpected deck ID: %s", deck.ID)

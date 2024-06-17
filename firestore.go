@@ -30,7 +30,7 @@ func fireDataStore() *FireDataStore {
 	return store
 }
 
-func (store *FireDataStore) summary() string {
+func (store *FireDataStore) Summary() string {
 	return fmt.Sprintf("FireDataStore(%s,%s)", store.Project, store.Database)
 }
 
@@ -45,7 +45,7 @@ func createClient(ctx context.Context, projectID string, database string) (*fire
 	return client, err
 }
 
-func (store *FireDataStore) getDeck(ctx context.Context, id string) cards.Deck {
+func (store *FireDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
 	logs.debug1(ctx, "Fetching Firestore deck %s", id)
 
 	var deck cards.Deck
@@ -63,7 +63,7 @@ func (store *FireDataStore) getDeck(ctx context.Context, id string) cards.Deck {
 	return deck
 }
 
-func (store *FireDataStore) putDeck(ctx context.Context, id string, deck cards.Deck) {
+func (store *FireDataStore) PutDeck(ctx context.Context, id string, deck cards.Deck) {
 	logs.info1(ctx, "Writing Firestore deck %s", id)
 
 	doc := store.Client.Doc(DECK_COLLECTION + "/" + id)
@@ -84,13 +84,13 @@ func (store *FireDataStore) close() {
 	store.Client.Close()
 }
 
-func (store *FireDataStore) isEmpty() bool {
+func (store *FireDataStore) IsEmpty() bool {
 	decks := store.Client.Collection(DECK_COLLECTION)
 	_, err := decks.Documents(context.Background()).Next()
 	return err == iterator.Done
 }
 
-func (store *FireDataStore) isValidAuthor(key string) bool {
+func (store *FireDataStore) IsValidAuthor(key string) bool {
 	doc := store.Client.Doc(KEYS_COLLECTION + "/" + strings.TrimSpace(key))
 	keyDoc, err := doc.Get(context.Background())
 	if err != nil {

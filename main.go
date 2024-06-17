@@ -30,7 +30,7 @@ func main() {
 }
 
 func setupTestData(store DataStore) {
-	if !store.isEmpty() {
+	if !store.IsEmpty() {
 		logs.debug("Datastore is not empty so not adding test data")
 		return
 	}
@@ -59,7 +59,7 @@ func setupTestData(store DataStore) {
 
 But [links](http://some.bad.site/) are disabled`, Hint: "Formatting"})
 
-	store.putDeck(context.Background(), testDeck.ID, testDeck)
+	store.PutDeck(context.Background(), testDeck.ID, testDeck)
 
-	logs.debug("Test data created in %s", store.summary())
+	logs.debug("Test data created in %s", store.Summary())
 }

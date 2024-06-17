@@ -103,7 +103,7 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pageData{
-		Deck:  dataStore.getDeck(context.Background(), deckID),
+		Deck:  dataStore.GetDeck(context.Background(), deckID),
 		Share: shareUrl,
 	}
 
@@ -134,7 +134,7 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 
 	logs.debug("Showing card %s from deck %s", cardID, deckID)
 
-	deck := dataStore.getDeck(context.Background(), deckID)
+	deck := dataStore.GetDeck(context.Background(), deckID)
 
 	if deck.ID != deckID {
 		http.Redirect(w, r, "/error?code=2001", http.StatusSeeOther)
@@ -185,7 +185,7 @@ func renderMarkdown(source string) template.HTML {
 func randomCard(w http.ResponseWriter, r *http.Request) {
 	deckId := strings.ToUpper(r.FormValue("deck"))
 
-	deck := dataStore.getDeck(context.Background(), deckId)
+	deck := dataStore.GetDeck(context.Background(), deckId)
 
 	if deck.ID == "" {
 		logs.error("Could not fetch deck %s", deckId)
@@ -205,7 +205,7 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		deckID := r.Form.Get("deck_id")
 
-		deck := dataStore.getDeck(context.Background(), deckID)
+		deck := dataStore.GetDeck(context.Background(), deckID)
 
 		card := cards.Card{
 			ID:       cards.RandomCardId(),
@@ -217,13 +217,13 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 
 		deck.AddCard(card)
 
-		dataStore.putDeck(context.Background(), deck.ID, deck)
+		dataStore.PutDeck(context.Background(), deck.ID, deck)
 
 		http.Redirect(w, r, "/deck/"+deckID, http.StatusSeeOther)
 	} else {
 		deckID := strings.ToUpper(r.FormValue("deck"))
 		logs.debug("Showing new card page for %s", deckID)
-		deck := dataStore.getDeck(context.Background(), deckID)
+		deck := dataStore.GetDeck(context.Background(), deckID)
 		data := pageData{
 			Deck:       deck,
 			Card:       *new(cards.Card),
@@ -241,7 +241,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		logs.info("Received edit for card %s in deck %s", cardID, deckID)
 
-		deck := dataStore.getDeck(context.Background(), deckID)
+		deck := dataStore.GetDeck(context.Background(), deckID)
 
 		card := deck.GetCard(cardID)
 
@@ -253,14 +253,14 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		deck.PutCard(card.ID, card)
 
-		dataStore.putDeck(context.Background(), deck.ID, deck)
+		dataStore.PutDeck(context.Background(), deck.ID, deck)
 
 		http.Redirect(w, r, "/deck/"+deckID+"/card/"+cardID+"?answer=show", http.StatusSeeOther)
 	} else {
 		deckID := strings.ToUpper(r.FormValue("deck"))
 		cardID := strings.ToUpper(r.FormValue("card"))
 		logs.debug("Showing edit card page for %s / %s", deckID, cardID)
-		deck := dataStore.getDeck(context.Background(), deckID)
+		deck := dataStore.GetDeck(context.Background(), deckID)
 		data := pageData{
 			Deck:       deck,
 			Card:       deck.GetCard(cardID),
@@ -278,14 +278,14 @@ func newDeck(w http.ResponseWriter, r *http.Request) {
 		Title: r.Form.Get("title"),
 	}
 
-	if !dataStore.isValidAuthor(r.Form.Get("author")) {
+	if !dataStore.IsValidAuthor(r.Form.Get("author")) {
 		http.Redirect(w, r, "/error?code=3001", http.StatusSeeOther)
 		return
 	}
 
 	logs.info("Creating deck %s with title %s", deck.ID, deck.Title)
 
-	dataStore.putDeck(context.Background(), deck.ID, deck)
+	dataStore.PutDeck(context.Background(), deck.ID, deck)
 
 	http.Redirect(w, r, "/deck/"+deck.ID, http.StatusSeeOther)
 }
