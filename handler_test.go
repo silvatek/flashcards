@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -126,4 +127,23 @@ func TestNewDeckBadAuthor(t *testing.T) {
 	applicationRouter().ServeHTTP(wt.Response, wt.Request)
 
 	wt.AssertRedirectTo("/error?code=3001")
+}
+
+func TestCardPage(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	deck := dataStore.GetDeck(context.Background(), "TEST-CODE")
+	card := deck.RandomCard()
+
+	wt := test.NewWebTest(t)
+	wt.SendGet("/deck/" + card.DeckID + "/card/" + card.ID)
+	defer wt.ShowBodyOnFail()
+
+	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+
+	wt.AssertSuccess()
+	wt.AssertBodyContains("title", "Flashcards - Test flashcard deck - Card")
+	wt.AssertBodyContains("h1", "FlashCard")
 }
