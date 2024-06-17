@@ -11,6 +11,7 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
+	"github.com/gorilla/mux"
 	"github.com/skip2/go-qrcode"
 )
 
@@ -30,23 +31,29 @@ type pageData struct {
 
 const HISTORY_COOKIE = "deckHistory"
 
-func addHandlers() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/decks", deckRedirect)
-	http.HandleFunc("/deck/", deckPage)
-	http.HandleFunc("/random", randomCard)
-	http.HandleFunc("/newcard", addCard)
-	http.HandleFunc("/editcard", editCard)
-	http.HandleFunc("/newdeck", newDeck)
-	http.HandleFunc("/error", errorPage)
-	http.HandleFunc("/qrcode", qrCodeGenerator)
+func applicationRouter() *mux.Router {
+	r := mux.NewRouter()
 
-	addStaticAssetHandler()
+	r.HandleFunc("/", homePage)
+	r.HandleFunc("/decks", deckRedirect)
+	r.HandleFunc("/deck/{id}/card/{card}", cardPage)
+	r.HandleFunc("/deck/{id}", deckPage)
+	r.HandleFunc("/random", randomCard)
+	r.HandleFunc("/newcard", addCard)
+	r.HandleFunc("/editcard", editCard)
+	r.HandleFunc("/newdeck", newDeck)
+	r.HandleFunc("/error", errorPage)
+	r.HandleFunc("/qrcode", qrCodeGenerator)
+
+	addStaticAssetRouter(r)
+
+	return r
 }
 
-func addStaticAssetHandler() {
+func addStaticAssetRouter(r *mux.Router) {
 	fs := http.FileServer(http.Dir("template/static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 }
 
 func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
@@ -82,34 +89,31 @@ func deckRedirect(w http.ResponseWriter, r *http.Request) {
 
 func deckPage(w http.ResponseWriter, r *http.Request) {
 	logs.debug("Deck page %s", r.RequestURI)
-	if strings.Contains(r.RequestURI, "/card/") {
-		cardPage(w, r)
-	} else {
-		deckID := lastPathElement(r.RequestURI)
+	deckID := mux.Vars(r)["id"]
 
-		logs.debug("Showing deck %s", deckID)
+	logs.debug("Showing deck %s", deckID)
 
-		var shareUrl string
-		if queryParam(r.RequestURI, "share") == "true" {
-			shareUrl = deckUrl(r, deckID)
-		}
-
-		data := pageData{
-			Deck:  dataStore.getDeck(context.Background(), deckID),
-			Share: shareUrl,
-		}
-
-		if data.Deck.ID != deckID {
-			http.Redirect(w, r, "/error?code=2001", http.StatusSeeOther)
-			return
-		}
-
-		history := getHistory(HISTORY_COOKIE, r)
-		history.push(deckID)
-		history.setCookie(w)
-
-		showTemplatePage("deck", data, w)
+	var shareUrl string
+	if queryParam(r.RequestURI, "share") == "true" {
+		shareUrl = deckUrl(r, deckID)
 	}
+
+	data := pageData{
+		Deck:  dataStore.getDeck(context.Background(), deckID),
+		Share: shareUrl,
+	}
+
+	if data.Deck.ID != deckID {
+		http.Redirect(w, r, "/error?code=2001", http.StatusSeeOther)
+		return
+	}
+
+	history := getHistory(HISTORY_COOKIE, r)
+	history.push(deckID)
+	history.setCookie(w)
+
+	showTemplatePage("deck", data, w)
+
 }
 
 func deckUrl(r *http.Request, deckID string) string {
@@ -121,11 +125,8 @@ func deckUrl(r *http.Request, deckID string) string {
 }
 
 func cardPage(w http.ResponseWriter, r *http.Request) {
-	cardID := lastPathElement(r.RequestURI)
-
-	path := strings.Replace(r.RequestURI, "/card/"+cardID, "", 1)
-
-	deckID := lastPathElement(path)
+	deckID := mux.Vars(r)["id"]
+	cardID := mux.Vars(r)["card"]
 
 	logs.debug("Showing card %s from deck %s", cardID, deckID)
 
@@ -143,7 +144,7 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	show := strings.ToLower(queryParam(r.RequestURI, "answer"))
+	show := strings.ToLower(r.FormValue("answer"))
 	if show == "" {
 		show = "none"
 	}
@@ -292,20 +293,6 @@ func errorPage(w http.ResponseWriter, r *http.Request) {
 	}
 	logs.info("Showing error page %s %s", errorCode, data.Error)
 	showTemplatePage("error", data, w)
-}
-
-func lastPathElement(uri string) string {
-	// strip query parameters
-	queryStart := strings.Index(uri, "?")
-	if queryStart > -1 {
-		uri = uri[:queryStart]
-	}
-	// return everything after the last slash
-	lastSlash := strings.LastIndex(uri, "/")
-	if lastSlash == -1 {
-		return uri
-	}
-	return uri[lastSlash+1:]
 }
 
 func queryParam(uri string, param string) string {

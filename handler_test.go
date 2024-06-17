@@ -23,7 +23,7 @@ func TestShowDeckPage(t *testing.T) {
 	wt.sendGet("/deck/TEST-CODE")
 	defer wt.showBodyOnFail()
 
-	deckPage(wt.w, wt.r)
+	applicationRouter().ServeHTTP(wt.w, wt.r)
 
 	wt.assertSuccess()
 	wt.assertBodyContains("title", "Flashcards - Test flashcard deck")
@@ -38,7 +38,8 @@ func TestDeckNotFound(t *testing.T) {
 	wt.sendGet("/deck/BAD-CODE")
 	defer wt.showBodyOnFail()
 
-	deckPage(wt.w, wt.r)
+	applicationRouter().ServeHTTP(wt.w, wt.r)
+	//deckPage(wt.w, wt.r)
 
 	wt.assertRedirectTo("/error?code=2001")
 }
@@ -55,19 +56,5 @@ func assertQueryParam(t *testing.T, uri string, key string, expectedValue string
 	value := queryParam(uri, key)
 	if value != expectedValue {
 		t.Errorf("Unexpected query parameter value `%s` (%s %s %s)", value, uri, key, value)
-	}
-}
-
-func TestLastPathElement(t *testing.T) {
-	assertPathElement(t, "/abc/xyz", "xyz")
-	assertPathElement(t, "/123", "123")
-	assertPathElement(t, "noslash", "noslash")
-	assertPathElement(t, "/abc/xyz?test=1", "xyz")
-}
-
-func assertPathElement(t *testing.T, path string, expected string) {
-	result := lastPathElement(path)
-	if result != expected {
-		t.Errorf("lastPathElement returned [%s], expected [%s]", result, expected)
 	}
 }

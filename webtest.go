@@ -47,8 +47,14 @@ func (wt *WebTest) assertSuccess() {
 func (wt *WebTest) assertRedirectTo(expectedTarget string) {
 	if wt.w.Code != http.StatusSeeOther {
 		wt.t.Errorf("Non-redirect response code (%d) for path %s", wt.w.Code, wt.path)
+		return
 	}
-	redirectTo := wt.w.Header().Values("Location")[0]
+	redirects := wt.w.Header().Values("Location")
+	if len(redirects) == 0 {
+		wt.t.Errorf("No redirect header for path %s", wt.path)
+		return
+	}
+	redirectTo := redirects[0]
 	if redirectTo != expectedTarget {
 		wt.t.Errorf("Unexpected redirect target for path %s, %s != %s", wt.path, redirectTo, expectedTarget)
 	}

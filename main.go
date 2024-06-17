@@ -19,9 +19,9 @@ func main() {
 
 	logs.info("Server listening on port %s", addr)
 
-	addHandlers()
+	router := applicationRouter()
 
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := http.ListenAndServe(addr, router); err != nil {
 		logs.error("Server listening error: %+v", err)
 		os.Exit(-5)
 	}
