@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"os"
+
+	"flashcards/cards"
 )
 
 var platform Platform
@@ -33,17 +35,17 @@ func setupTestData(store DataStore) {
 		return
 	}
 
-	testDeck := Deck{
+	testDeck := cards.Deck{
 		ID:    "TEST-CODE",
 		Title: "Test flashcard deck",
 	}
 
-	testDeck.addCard(Card{Question: "What Is the airspeed velocity of an unladen swallow?", Answer: "What do you mean? African or European swallow?", Hint: "Question"})
-	testDeck.addCard(Card{Question: "What is the meaning of life?", Answer: "42", Hint: "Number"})
-	testDeck.addCard(Card{Question: "Should I stay or should I go?", Answer: "If I stay there will be trouble", Hint: "Clash"})
-	testDeck.addCard(Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood?", Answer: "Much wood would be chucked"})
+	testDeck.AddCard(cards.Card{Question: "What Is the airspeed velocity of an unladen swallow?", Answer: "What do you mean? African or European swallow?", Hint: "Question"})
+	testDeck.AddCard(cards.Card{Question: "What is the meaning of life?", Answer: "42", Hint: "Number"})
+	testDeck.AddCard(cards.Card{Question: "Should I stay or should I go?", Answer: "If I stay there will be trouble", Hint: "Clash"})
+	testDeck.AddCard(cards.Card{Question: "How much wood would a woodchuck chuck if a woodchuck could chuck wood?", Answer: "Much wood would be chucked"})
 
-	testDeck.addCard(Card{Question: "Does `Markdown` work?",
+	testDeck.AddCard(cards.Card{Question: "Does `Markdown` work?",
 		Answer: `Some features do, including...
 
 * Bulleted lists

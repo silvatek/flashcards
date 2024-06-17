@@ -1,4 +1,4 @@
-package main
+package cards
 
 import (
 	"fmt"
@@ -19,18 +19,18 @@ type Deck struct {
 	Cards map[string]Card
 }
 
-func randomCardId() string {
+func RandomCardId() string {
 	return fmt.Sprintf("%08X", rand.Intn(0xFFFFFFFF))
 }
 
-func (deck *Deck) addCard(card Card) {
+func (deck *Deck) AddCard(card Card) {
 	if card.ID == "" {
-		card.ID = randomCardId()
+		card.ID = RandomCardId()
 	}
-	deck.putCard(card.ID, card)
+	deck.PutCard(card.ID, card)
 }
 
-func (deck *Deck) putCard(cardID string, card Card) {
+func (deck *Deck) PutCard(cardID string, card Card) {
 	if card.DeckID == "" {
 		card.DeckID = deck.ID
 	}
@@ -39,14 +39,14 @@ func (deck *Deck) putCard(cardID string, card Card) {
 	}
 	deck.Cards[cardID] = card
 }
-func (deck *Deck) getCard(id string) Card {
+func (deck *Deck) GetCard(id string) Card {
 	if deck.Cards == nil {
 		deck.Cards = make(map[string]Card)
 	}
 	return deck.Cards[id]
 }
 
-func (deck *Deck) randomCard() Card {
+func (deck *Deck) RandomCard() Card {
 	cardCount := len(deck.Cards)
 	counter := rand.Intn(cardCount)
 	for _, card := range deck.Cards {

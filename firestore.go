@@ -8,6 +8,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
+
+	"flashcards/cards"
 )
 
 const DECK_COLLECTION = "Decks"
@@ -43,10 +45,10 @@ func createClient(ctx context.Context, projectID string, database string) (*fire
 	return client, err
 }
 
-func (store *FireDataStore) getDeck(ctx context.Context, id string) Deck {
+func (store *FireDataStore) getDeck(ctx context.Context, id string) cards.Deck {
 	logs.debug1(ctx, "Fetching Firestore deck %s", id)
 
-	var deck Deck
+	var deck cards.Deck
 
 	doc := store.Client.Doc(DECK_COLLECTION + "/" + id)
 	deckDoc, err := doc.Get(ctx)
@@ -61,7 +63,7 @@ func (store *FireDataStore) getDeck(ctx context.Context, id string) Deck {
 	return deck
 }
 
-func (store *FireDataStore) putDeck(ctx context.Context, id string, deck Deck) {
+func (store *FireDataStore) putDeck(ctx context.Context, id string, deck cards.Deck) {
 	logs.info1(ctx, "Writing Firestore deck %s", id)
 
 	doc := store.Client.Doc(DECK_COLLECTION + "/" + id)

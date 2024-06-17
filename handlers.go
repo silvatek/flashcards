@@ -13,13 +13,15 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 	"github.com/gorilla/mux"
 	"github.com/skip2/go-qrcode"
+
+	"flashcards/cards"
 )
 
 type pageData struct {
 	Message    string
 	Error      string
-	Deck       Deck
-	Card       Card
+	Deck       cards.Deck
+	Card       cards.Card
 	Show       string
 	Share      string
 	Question   template.HTML
@@ -139,7 +141,7 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card := deck.getCard(cardID)
+	card := deck.GetCard(cardID)
 
 	if card.ID != cardID {
 		http.Redirect(w, r, "/error?code=2002", http.StatusSeeOther)
@@ -193,7 +195,7 @@ func randomCard(w http.ResponseWriter, r *http.Request) {
 
 	logs.info("Showing random card for %s", deck.Title)
 
-	card := deck.randomCard()
+	card := deck.RandomCard()
 
 	http.Redirect(w, r, "/deck/"+deckId+"/card/"+card.ID+"?answer=hide", http.StatusSeeOther)
 }
@@ -205,15 +207,15 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 
 		deck := dataStore.getDeck(context.Background(), deckID)
 
-		card := Card{
-			ID:       randomCardId(),
+		card := cards.Card{
+			ID:       cards.RandomCardId(),
 			DeckID:   deckID,
 			Question: r.Form.Get("question"),
 			Answer:   r.Form.Get("answer"),
 			Hint:     r.Form.Get("hint"),
 		}
 
-		deck.addCard(card)
+		deck.AddCard(card)
 
 		dataStore.putDeck(context.Background(), deck.ID, deck)
 
@@ -224,7 +226,7 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 		deck := dataStore.getDeck(context.Background(), deckID)
 		data := pageData{
 			Deck:       deck,
-			Card:       *new(Card),
+			Card:       *new(cards.Card),
 			FormAction: "/newcard",
 		}
 		showTemplatePage("editcard", data, w)
@@ -241,7 +243,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		deck := dataStore.getDeck(context.Background(), deckID)
 
-		card := deck.getCard(cardID)
+		card := deck.GetCard(cardID)
 
 		card.Question = r.Form.Get("question")
 		card.Answer = r.Form.Get("answer")
@@ -249,7 +251,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		logs.debug("New answer: %s", card.Answer)
 
-		deck.putCard(card.ID, card)
+		deck.PutCard(card.ID, card)
 
 		dataStore.putDeck(context.Background(), deck.ID, deck)
 
@@ -261,7 +263,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 		deck := dataStore.getDeck(context.Background(), deckID)
 		data := pageData{
 			Deck:       deck,
-			Card:       deck.getCard(cardID),
+			Card:       deck.GetCard(cardID),
 			FormAction: "/editcard",
 		}
 		showTemplatePage("editcard", data, w)
@@ -271,7 +273,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 func newDeck(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	deck := Deck{
+	deck := cards.Deck{
 		ID:    randomDeckId(),
 		Title: r.Form.Get("title"),
 	}
