@@ -42,3 +42,23 @@ func TestDeckNotFound(t *testing.T) {
 
 	wt.assertRedirectTo("/error?code=2001")
 }
+
+func TestErrorPage(t *testing.T) {
+	wt := webTest(t)
+	wt.sendGet("/error?code=2002")
+	defer wt.showBodyOnFail()
+
+	applicationRouter().ServeHTTP(wt.w, wt.r)
+
+	wt.assertBodyContains(".error", "Card not found")
+}
+
+func TestUnknownError(t *testing.T) {
+	wt := webTest(t)
+	wt.sendGet("/error?code=9999")
+	defer wt.showBodyOnFail()
+
+	applicationRouter().ServeHTTP(wt.w, wt.r)
+
+	wt.assertBodyContains(".error", "Unknown error 9999")
+}

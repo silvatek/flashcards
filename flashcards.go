@@ -48,7 +48,6 @@ func (deck *Deck) getCard(id string) Card {
 
 func (deck *Deck) randomCard() Card {
 	cardCount := len(deck.Cards)
-	logs.debug("Deck %s has %d cards", deck.ID, cardCount)
 	counter := rand.Intn(cardCount)
 	for _, card := range deck.Cards {
 		if counter == 0 {
