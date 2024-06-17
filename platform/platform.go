@@ -2,10 +2,7 @@ package platform
 
 import (
 	"context"
-	"os"
 )
-
-const defaultAddr = "127.0.0.1:8080"
 
 type Platform interface {
 	Logger() Logger
@@ -13,30 +10,32 @@ type Platform interface {
 	ListenAddress() string
 }
 
+var platform Platform
+
 type TestPlatform struct {
+	logs  ConsoleLogger
+	store TestDataStore
 }
 
-func GetPlatform() Platform {
-	return &TestPlatform{}
+func LocalPlatform() Platform {
+	if platform == nil {
+		tp := &TestPlatform{}
+		tp.logs = *new(ConsoleLogger)
+		tp.store = *new(TestDataStore)
+		tp.store.init(context.Background())
+		platform = tp
+	}
+	return platform
 }
 
 func (platform *TestPlatform) Logger() Logger {
-	logs := *new(ConsoleLogger)
-	logs.Init()
-	return &logs
+	return &platform.logs
 }
 
 func (platform *TestPlatform) DataStore() DataStore {
-	store := new(TestDataStore)
-	store.init(context.Background())
-	return store
+	return &platform.store
 }
 
 func (platform *TestPlatform) ListenAddress() string {
-	// $PORT environment variable is provided in the Kubernetes deployment.
-	if p := os.Getenv("PORT"); p != "" {
-		return ":" + p
-	} else {
-		return defaultAddr
-	}
+	return "127.0.0.1:8080"
 }

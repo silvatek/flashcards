@@ -8,7 +8,7 @@ import (
 )
 
 func TestIndexPage(t *testing.T) {
-	logs = platform.GetPlatform().Logger()
+	logs = platform.LocalPlatform().Logger()
 	wt := test.NewWebTest(t)
 	wt.SendGet("/")
 	defer wt.ShowBodyOnFail()
@@ -20,8 +20,8 @@ func TestIndexPage(t *testing.T) {
 }
 
 func TestShowDeckPage(t *testing.T) {
-	logs = platform.GetPlatform().Logger()
-	dataStore = platform.GetPlatform().DataStore()
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
 	wt := test.NewWebTest(t)
@@ -36,8 +36,8 @@ func TestShowDeckPage(t *testing.T) {
 }
 
 func TestDeckNotFound(t *testing.T) {
-	logs = platform.GetPlatform().Logger()
-	dataStore = platform.GetPlatform().DataStore()
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
 	wt := test.NewWebTest(t)
@@ -50,7 +50,7 @@ func TestDeckNotFound(t *testing.T) {
 }
 
 func TestErrorPage(t *testing.T) {
-	logs = platform.GetPlatform().Logger()
+	logs = platform.LocalPlatform().Logger()
 	wt := test.NewWebTest(t)
 	wt.SendGet("/error?code=2002")
 	defer wt.ShowBodyOnFail()
@@ -61,7 +61,7 @@ func TestErrorPage(t *testing.T) {
 }
 
 func TestUnknownError(t *testing.T) {
-	logs = platform.GetPlatform().Logger()
+	logs = platform.LocalPlatform().Logger()
 	wt := test.NewWebTest(t)
 	wt.SendGet("/error?code=9999")
 	defer wt.ShowBodyOnFail()

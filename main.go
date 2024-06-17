@@ -35,6 +35,6 @@ func getPlatform() platform.Platform {
 	if gcp.RunningOnGCloud() {
 		return &gcp.GooglePlatform{}
 	} else {
-		return &platform.TestPlatform{}
+		return platform.LocalPlatform()
 	}
 }
