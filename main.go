@@ -32,14 +32,9 @@ func main() {
 }
 
 func getPlatform() platform.Platform {
-	if runningOnGCloud() {
+	if gcp.RunningOnGCloud() {
 		return &gcp.GooglePlatform{}
 	} else {
 		return &platform.TestPlatform{}
 	}
-}
-
-func runningOnGCloud() bool {
-	projectId := os.Getenv("GCLOUD_PROJECT")
-	return len(projectId) > 0
 }

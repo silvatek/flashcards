@@ -12,14 +12,20 @@ import (
 const LOCAL_LOGS = 0
 const GCLOUD_LOGS = 1
 
-type Logger struct {
+type Logger interface {
+	Debug(template string, args ...any)
+	Info(template string, args ...any)
+	Error(template string, args ...any)
+}
+
+type ConsoleLogger struct {
 	mode    int
 	project string
 	client  *logging.Client
 	logs    *logging.Logger
 }
 
-func (logger *Logger) Init() {
+func (logger *ConsoleLogger) Init() {
 	if runningOnGCloud() {
 		logger.mode = GCLOUD_LOGS
 		logger.project = "flashcards-425408"
@@ -38,11 +44,11 @@ func runningOnGCloud() bool {
 	return len(projectId) > 0
 }
 
-func (logger *Logger) Debug(template string, args ...any) {
+func (logger *ConsoleLogger) Debug(template string, args ...any) {
 	logger.debug1(context.TODO(), template, args...)
 }
 
-func (logger *Logger) debug1(ctx context.Context, template string, args ...any) {
+func (logger *ConsoleLogger) debug1(ctx context.Context, template string, args ...any) {
 	switch logger.mode {
 	case GCLOUD_LOGS:
 		logger.gCloudLog(ctx, logging.Debug, template, args...)
@@ -51,11 +57,11 @@ func (logger *Logger) debug1(ctx context.Context, template string, args ...any) 
 	}
 }
 
-func (logger *Logger) Info(template string, args ...any) {
+func (logger *ConsoleLogger) Info(template string, args ...any) {
 	logger.info1(context.TODO(), template, args...)
 }
 
-func (logger *Logger) info1(ctx context.Context, template string, args ...any) {
+func (logger *ConsoleLogger) info1(ctx context.Context, template string, args ...any) {
 	switch logger.mode {
 	case GCLOUD_LOGS:
 		logger.gCloudLog(ctx, logging.Info, template, args...)
@@ -64,11 +70,11 @@ func (logger *Logger) info1(ctx context.Context, template string, args ...any) {
 	}
 }
 
-func (logger *Logger) Error(template string, args ...any) {
+func (logger *ConsoleLogger) Error(template string, args ...any) {
 	logger.error1(context.TODO(), template, args...)
 }
 
-func (logger *Logger) error1(ctx context.Context, template string, args ...any) {
+func (logger *ConsoleLogger) error1(ctx context.Context, template string, args ...any) {
 	switch logger.mode {
 	case GCLOUD_LOGS:
 		logger.gCloudLog(ctx, logging.Error, template, args...)
@@ -77,7 +83,7 @@ func (logger *Logger) error1(ctx context.Context, template string, args ...any) 
 	}
 }
 
-func (logger *Logger) gCloudLog(ctx context.Context, severity logging.Severity, template string, args ...any) {
+func (logger *ConsoleLogger) gCloudLog(ctx context.Context, severity logging.Severity, template string, args ...any) {
 	labels := make(map[string]string)
 	logger.logs.Log(logging.Entry{
 		Payload:  fmt.Sprintf(template, args...),

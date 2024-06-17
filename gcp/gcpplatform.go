@@ -9,16 +9,21 @@ import (
 const defaultAddr = "127.0.0.1:8080"
 
 type GooglePlatform struct {
-	logs platform.Logger
+	logs GcpLogger
+}
+
+func RunningOnGCloud() bool {
+	projectId := os.Getenv("GCLOUD_PROJECT")
+	return len(projectId) > 0
 }
 
 func (platform *GooglePlatform) Logger() platform.Logger {
-	platform.logs.Init()
-	return platform.logs
+	platform.logs.init()
+	return &platform.logs
 }
 
 func (platform *GooglePlatform) DataStore() platform.DataStore {
-	store := fireDataStore(platform.logs)
+	store := fireDataStore(&platform.logs)
 	store.init()
 	return store
 }

@@ -21,9 +21,9 @@ func GetPlatform() Platform {
 }
 
 func (platform *TestPlatform) Logger() Logger {
-	logs := *new(Logger)
+	logs := *new(ConsoleLogger)
 	logs.Init()
-	return logs
+	return &logs
 }
 
 func (platform *TestPlatform) DataStore() DataStore {
