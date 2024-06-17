@@ -83,8 +83,10 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func deckRedirect(w http.ResponseWriter, r *http.Request) {
-	deckId := strings.ToUpper(queryParam(r.RequestURI, "deck"))
-	http.Redirect(w, r, "/deck/"+deckId, http.StatusSeeOther)
+	deckId := r.FormValue("deck")
+	deckUrl := fmt.Sprintf("/deck/%s", strings.ToUpper(deckId))
+	logs.debug("Redirecting to %s", deckUrl)
+	http.Redirect(w, r, deckUrl, http.StatusSeeOther)
 }
 
 func deckPage(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +96,7 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 	logs.debug("Showing deck %s", deckID)
 
 	var shareUrl string
-	if queryParam(r.RequestURI, "share") == "true" {
+	if r.FormValue("share") == "true" {
 		shareUrl = deckUrl(r, deckID)
 	}
 
@@ -179,7 +181,7 @@ func renderMarkdown(source string) template.HTML {
 }
 
 func randomCard(w http.ResponseWriter, r *http.Request) {
-	deckId := queryParam(r.RequestURI, "deck")
+	deckId := strings.ToUpper(r.FormValue("deck"))
 
 	deck := dataStore.getDeck(context.Background(), deckId)
 
@@ -217,7 +219,7 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/deck/"+deckID, http.StatusSeeOther)
 	} else {
-		deckID := queryParam(r.RequestURI, "deck")
+		deckID := strings.ToUpper(r.FormValue("deck"))
 		logs.debug("Showing new card page for %s", deckID)
 		deck := dataStore.getDeck(context.Background(), deckID)
 		data := pageData{
@@ -253,8 +255,8 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/deck/"+deckID+"/card/"+cardID+"?answer=show", http.StatusSeeOther)
 	} else {
-		deckID := queryParam(r.RequestURI, "deck")
-		cardID := queryParam(r.RequestURI, "card")
+		deckID := strings.ToUpper(r.FormValue("deck"))
+		cardID := strings.ToUpper(r.FormValue("card"))
 		logs.debug("Showing edit card page for %s / %s", deckID, cardID)
 		deck := dataStore.getDeck(context.Background(), deckID)
 		data := pageData{
@@ -287,7 +289,7 @@ func newDeck(w http.ResponseWriter, r *http.Request) {
 }
 
 func errorPage(w http.ResponseWriter, r *http.Request) {
-	errorCode := queryParam(r.RequestURI, "code")
+	errorCode := r.FormValue("code")
 	data := pageData{
 		Error: errorText(errorCode),
 	}
@@ -295,32 +297,8 @@ func errorPage(w http.ResponseWriter, r *http.Request) {
 	showTemplatePage("error", data, w)
 }
 
-func queryParam(uri string, param string) string {
-	queryStart := strings.Index(uri, "?")
-	if queryStart == -1 {
-		return ""
-	}
-	uri = uri[queryStart+1:]
-
-	paramStart := strings.Index(uri, param+"=")
-	if paramStart == -1 {
-		return ""
-	}
-	paramVal := uri[paramStart:]
-
-	valueStart := strings.Index(uri, "=")
-	paramVal = paramVal[valueStart+1:]
-
-	nextStart := strings.Index(paramVal, "&")
-	if nextStart > 0 {
-		paramVal = paramVal[0:nextStart]
-	}
-
-	return paramVal
-}
-
 func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
-	deckID := queryParam(r.RequestURI, "deck")
+	deckID := strings.ToUpper(r.FormValue("deck"))
 
 	gameUrl := deckUrl(r, deckID)
 

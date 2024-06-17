@@ -39,22 +39,6 @@ func TestDeckNotFound(t *testing.T) {
 	defer wt.showBodyOnFail()
 
 	applicationRouter().ServeHTTP(wt.w, wt.r)
-	//deckPage(wt.w, wt.r)
 
 	wt.assertRedirectTo("/error?code=2001")
-}
-
-func TestQueryParam(t *testing.T) {
-	assertQueryParam(t, "/resource?key=value", "key", "value")
-	assertQueryParam(t, "/resource", "key", "")
-	assertQueryParam(t, "/resource?name=nothing", "key", "")
-	assertQueryParam(t, "/resource?a=1&b=2", "a", "1")
-	assertQueryParam(t, "/resource?a=1&b=2", "b", "2")
-}
-
-func assertQueryParam(t *testing.T, uri string, key string, expectedValue string) {
-	value := queryParam(uri, key)
-	if value != expectedValue {
-		t.Errorf("Unexpected query parameter value `%s` (%s %s %s)", value, uri, key, value)
-	}
 }
