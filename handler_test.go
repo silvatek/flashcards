@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"flashcards/platform"
 	"flashcards/test"
 )
 
@@ -18,8 +19,8 @@ func TestIndexPage(t *testing.T) {
 }
 
 func TestShowDeckPage(t *testing.T) {
-	dataStore = platform.dataStore()
-	setupTestData(dataStore)
+	dataStore = platform.GetPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
 
 	wt := test.NewWebTest(t)
 	wt.SendGet("/deck/TEST-CODE")
@@ -33,8 +34,8 @@ func TestShowDeckPage(t *testing.T) {
 }
 
 func TestDeckNotFound(t *testing.T) {
-	dataStore = platform.dataStore()
-	setupTestData(dataStore)
+	dataStore = platform.GetPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
 
 	wt := test.NewWebTest(t)
 	wt.SendGet("/deck/BAD-CODE")

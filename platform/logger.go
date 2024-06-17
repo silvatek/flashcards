@@ -1,9 +1,10 @@
-package main
+package platform
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"cloud.google.com/go/logging"
 )
@@ -18,8 +19,8 @@ type Logger struct {
 	logs    *logging.Logger
 }
 
-func (logger *Logger) init() {
-	if platform.runningOnGCloud() {
+func (logger *Logger) Init() {
+	if runningOnGCloud() {
 		logger.mode = GCLOUD_LOGS
 		logger.project = "flashcards-425408"
 		client, err := logging.NewClient(context.Background(), logger.project)
@@ -32,7 +33,12 @@ func (logger *Logger) init() {
 	}
 }
 
-func (logger *Logger) debug(template string, args ...any) {
+func runningOnGCloud() bool {
+	projectId := os.Getenv("GCLOUD_PROJECT")
+	return len(projectId) > 0
+}
+
+func (logger *Logger) Debug(template string, args ...any) {
 	logger.debug1(context.TODO(), template, args...)
 }
 
@@ -45,7 +51,7 @@ func (logger *Logger) debug1(ctx context.Context, template string, args ...any) 
 	}
 }
 
-func (logger *Logger) info(template string, args ...any) {
+func (logger *Logger) Info(template string, args ...any) {
 	logger.info1(context.TODO(), template, args...)
 }
 
@@ -58,7 +64,7 @@ func (logger *Logger) info1(ctx context.Context, template string, args ...any) {
 	}
 }
 
-func (logger *Logger) error(template string, args ...any) {
+func (logger *Logger) Error(template string, args ...any) {
 	logger.error1(context.TODO(), template, args...)
 }
 

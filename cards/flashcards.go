@@ -19,6 +19,10 @@ type Deck struct {
 	Cards map[string]Card
 }
 
+func RandomDeckId() string {
+	return fmt.Sprintf("%04X-%04X", rand.Intn(0xFFFF), rand.Intn(0xFFFF))
+}
+
 func RandomCardId() string {
 	return fmt.Sprintf("%08X", rand.Intn(0xFFFFFFFF))
 }

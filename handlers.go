@@ -61,20 +61,20 @@ func addStaticAssetRouter(r *mux.Router) {
 func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
 	t, err := template.ParseFiles("template/" + templateName + ".html")
 	if err != nil {
-		logs.error("Error parsing template: %+v", err)
+		logs.Error("Error parsing template: %+v", err)
 		os.Exit(-2)
 	}
 
 	if err := t.Execute(w, data); err != nil {
 		msg := http.StatusText(http.StatusInternalServerError)
-		logs.debug("template.Execute: %v", err)
+		logs.Debug("template.Execute: %v", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 	}
 }
 
 // show home/index page
 func homePage(w http.ResponseWriter, r *http.Request) {
-	logs.debug("Received request: %s %s", r.Method, r.URL.Path)
+	logs.Debug("Received request: %s %s", r.Method, r.URL.Path)
 
 	data := pageData{
 		Message: "Fashcards",
@@ -87,15 +87,15 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 func deckRedirect(w http.ResponseWriter, r *http.Request) {
 	deckId := r.FormValue("deck")
 	deckUrl := fmt.Sprintf("/deck/%s", strings.ToUpper(deckId))
-	logs.debug("Redirecting to %s", deckUrl)
+	logs.Debug("Redirecting to %s", deckUrl)
 	http.Redirect(w, r, deckUrl, http.StatusSeeOther)
 }
 
 func deckPage(w http.ResponseWriter, r *http.Request) {
-	logs.debug("Deck page %s", r.RequestURI)
+	logs.Debug("Deck page %s", r.RequestURI)
 	deckID := mux.Vars(r)["id"]
 
-	logs.debug("Showing deck %s", deckID)
+	logs.Debug("Showing deck %s", deckID)
 
 	var shareUrl string
 	if r.FormValue("share") == "true" {
@@ -132,7 +132,7 @@ func cardPage(w http.ResponseWriter, r *http.Request) {
 	deckID := mux.Vars(r)["id"]
 	cardID := mux.Vars(r)["card"]
 
-	logs.debug("Showing card %s from deck %s", cardID, deckID)
+	logs.Debug("Showing card %s from deck %s", cardID, deckID)
 
 	deck := dataStore.GetDeck(context.Background(), deckID)
 
@@ -188,12 +188,12 @@ func randomCard(w http.ResponseWriter, r *http.Request) {
 	deck := dataStore.GetDeck(context.Background(), deckId)
 
 	if deck.ID == "" {
-		logs.error("Could not fetch deck %s", deckId)
+		logs.Error("Could not fetch deck %s", deckId)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	logs.info("Showing random card for %s", deck.Title)
+	logs.Info("Showing random card for %s", deck.Title)
 
 	card := deck.RandomCard()
 
@@ -222,7 +222,7 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/deck/"+deckID, http.StatusSeeOther)
 	} else {
 		deckID := strings.ToUpper(r.FormValue("deck"))
-		logs.debug("Showing new card page for %s", deckID)
+		logs.Debug("Showing new card page for %s", deckID)
 		deck := dataStore.GetDeck(context.Background(), deckID)
 		data := pageData{
 			Deck:       deck,
@@ -239,7 +239,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 		deckID := r.Form.Get("deck_id")
 		cardID := r.Form.Get("card_id")
 
-		logs.info("Received edit for card %s in deck %s", cardID, deckID)
+		logs.Info("Received edit for card %s in deck %s", cardID, deckID)
 
 		deck := dataStore.GetDeck(context.Background(), deckID)
 
@@ -249,7 +249,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 		card.Answer = r.Form.Get("answer")
 		card.Hint = r.Form.Get("hint")
 
-		logs.debug("New answer: %s", card.Answer)
+		logs.Debug("New answer: %s", card.Answer)
 
 		deck.PutCard(card.ID, card)
 
@@ -259,7 +259,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 	} else {
 		deckID := strings.ToUpper(r.FormValue("deck"))
 		cardID := strings.ToUpper(r.FormValue("card"))
-		logs.debug("Showing edit card page for %s / %s", deckID, cardID)
+		logs.Debug("Showing edit card page for %s / %s", deckID, cardID)
 		deck := dataStore.GetDeck(context.Background(), deckID)
 		data := pageData{
 			Deck:       deck,
@@ -274,7 +274,7 @@ func newDeck(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	deck := cards.Deck{
-		ID:    randomDeckId(),
+		ID:    cards.RandomDeckId(),
 		Title: r.Form.Get("title"),
 	}
 
@@ -283,7 +283,7 @@ func newDeck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logs.info("Creating deck %s with title %s", deck.ID, deck.Title)
+	logs.Info("Creating deck %s with title %s", deck.ID, deck.Title)
 
 	dataStore.PutDeck(context.Background(), deck.ID, deck)
 
@@ -295,7 +295,7 @@ func errorPage(w http.ResponseWriter, r *http.Request) {
 	data := pageData{
 		Error: errorText(errorCode),
 	}
-	logs.info("Showing error page %s %s", errorCode, data.Error)
+	logs.Info("Showing error page %s %s", errorCode, data.Error)
 	showTemplatePage("error", data, w)
 }
 

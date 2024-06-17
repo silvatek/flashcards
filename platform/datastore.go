@@ -1,9 +1,7 @@
-package main
+package platform
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
 
 	"flashcards/cards"
 )
@@ -18,10 +16,6 @@ type DataStore interface {
 
 type TestDataStore struct {
 	decks map[string]cards.Deck
-}
-
-func randomDeckId() string {
-	return fmt.Sprintf("%04X-%04X", rand.Intn(0xFFFF), rand.Intn(0xFFFF))
 }
 
 func (store *TestDataStore) Summary() string {

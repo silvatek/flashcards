@@ -1,7 +1,8 @@
-package main
+package platform
 
 import (
 	"context"
+	"flashcards/cards"
 	"testing"
 )
 
@@ -20,15 +21,20 @@ func TestDataStoreFunctionality(t *testing.T) {
 		t.Error("Datastore was not empty at start of test")
 	}
 
-	setupTestData(&ds)
+	deck := cards.Deck{
+		ID:    "TEST-CODE",
+		Title: "Testing",
+	}
+
+	ds.PutDeck(ctx, deck.ID, deck)
 
 	if ds.IsEmpty() {
 		t.Error("Datastore empty after test data")
 	}
 
-	deck := ds.GetDeck(ctx, "TEST-CODE")
+	deck2 := ds.GetDeck(ctx, "TEST-CODE")
 
-	if deck.ID != "TEST-CODE" {
-		t.Errorf("Unexpected deck ID: %s", deck.ID)
+	if deck2.ID != "TEST-CODE" {
+		t.Errorf("Unexpected deck ID: %s", deck2.ID)
 	}
 }

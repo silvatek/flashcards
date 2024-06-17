@@ -1,4 +1,4 @@
-package main
+package gcp
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"google.golang.org/api/iterator"
 
 	"flashcards/cards"
+	"flashcards/platform"
 )
 
 const DECK_COLLECTION = "Decks"
@@ -20,13 +21,15 @@ type FireDataStore struct {
 	Project  string
 	Database string
 	Err      error
+	logs     platform.Logger
 }
 
-func fireDataStore() *FireDataStore {
+func fireDataStore(logs platform.Logger) *FireDataStore {
 	store := new(FireDataStore)
 	store.Project = os.Getenv("GCLOUD_PROJECT")
 	store.Database = os.Getenv("FIRESTORE_DB_NAME")
-	logs.info("Opening Firestore datastore %s, %s", store.Project, store.Database)
+	store.logs = logs
+	logs.Info("Opening Firestore datastore %s, %s", store.Project, store.Database)
 	return store
 }
 
@@ -34,28 +37,28 @@ func (store *FireDataStore) Summary() string {
 	return fmt.Sprintf("FireDataStore(%s,%s)", store.Project, store.Database)
 }
 
-func createClient(ctx context.Context, projectID string, database string) (*firestore.Client, error) {
+func (store *FireDataStore) createClient(ctx context.Context, projectID string, database string) (*firestore.Client, error) {
 	client, err := firestore.NewClientWithDatabase(ctx, projectID, database)
 	if err == nil {
-		logs.info("Firestore client created: %s %s", projectID, database)
+		store.logs.Info("Firestore client created: %s %s", projectID, database)
 	} else {
-		logs.error("Failed to create FireStore client: %v", err)
+		store.logs.Error("Failed to create FireStore client: %v", err)
 	}
 	// Close client when done with "defer client.Close()"
 	return client, err
 }
 
 func (store *FireDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
-	logs.debug1(ctx, "Fetching Firestore deck %s", id)
+	store.logs.Debug("Fetching Firestore deck %s", id)
 
 	var deck cards.Deck
 
 	doc := store.Client.Doc(DECK_COLLECTION + "/" + id)
 	deckDoc, err := doc.Get(ctx)
 	if err != nil {
-		logs.error1(ctx, "Error fetching deck %s, %v", id, err)
+		store.logs.Error("Error fetching deck %s, %v", id, err)
 	} else {
-		logs.debug1(ctx, "Found game deck %s", id)
+		store.logs.Debug("Found game deck %s", id)
 
 		deckDoc.DataTo(&deck)
 	}
@@ -64,20 +67,20 @@ func (store *FireDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
 }
 
 func (store *FireDataStore) PutDeck(ctx context.Context, id string, deck cards.Deck) {
-	logs.info1(ctx, "Writing Firestore deck %s", id)
+	store.logs.Info("Writing Firestore deck %s", id)
 
 	doc := store.Client.Doc(DECK_COLLECTION + "/" + id)
 	_, err := doc.Set(ctx, deck)
 	if err != nil {
-		logs.error1(ctx, "Error writing deck %v", err)
+		store.logs.Error("Error writing deck %v", err)
 	} else {
-		logs.debug1(ctx, "Wrote deck document %s", id)
+		store.logs.Debug("Wrote deck document %s", id)
 	}
 }
 
 func (store *FireDataStore) init() {
-	store.Client, store.Err = createClient(context.Background(), store.Project, store.Database)
-	logs.info("Initialised firestore")
+	store.Client, store.Err = store.createClient(context.Background(), store.Project, store.Database)
+	store.logs.Info("Initialised firestore")
 }
 
 func (store *FireDataStore) close() {
@@ -94,11 +97,11 @@ func (store *FireDataStore) IsValidAuthor(key string) bool {
 	doc := store.Client.Doc(KEYS_COLLECTION + "/" + strings.TrimSpace(key))
 	keyDoc, err := doc.Get(context.Background())
 	if err != nil {
-		logs.info("Author key not found")
+		store.logs.Info("Author key not found")
 		return false
 	}
 	if keyDoc.Data()["role"] != "author" {
-		logs.info("Key does not have author role")
+		store.logs.Info("Key does not have author role")
 		return false
 	}
 	return true

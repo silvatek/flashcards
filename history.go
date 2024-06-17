@@ -16,7 +16,7 @@ func getHistory(cookieName string, r *http.Request) History {
 	current, err := r.Cookie(cookieName)
 	if err != http.ErrNoCookie {
 		history.entries = strings.Split(current.Value, "|")
-		logs.debug("Loaded  history: %v", history.entries)
+		logs.Debug("Loaded  history: %v", history.entries)
 	}
 	return history
 }
