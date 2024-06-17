@@ -1,6 +1,8 @@
 package test
 
 import (
+	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -31,6 +33,22 @@ func (wt *WebTest) SendGet(path string) {
 	wt.Request = httptest.NewRequest(http.MethodGet, path, nil)
 }
 
+func (wt *WebTest) SendPost(path string, headers map[string]string) {
+	wt.path = path
+	var buf bytes.Buffer
+	empty := true
+	for key, value := range headers {
+		if !empty {
+			fmt.Fprint(&buf, "&")
+		}
+		fmt.Fprintf(&buf, "%s=%s", key, value)
+		empty = false
+	}
+	fmt.Println(string(buf.Bytes()))
+	wt.Request = httptest.NewRequest(http.MethodPost, path, &buf)
+	wt.Request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+}
+
 func (wt *WebTest) ShowBodyOnFail() {
 	if !wt.success {
 		wt.t.Log(wt.doc.Html())
@@ -49,15 +67,24 @@ func (wt *WebTest) AssertRedirectTo(expectedTarget string) {
 		wt.t.Errorf("Non-redirect response code (%d) for path %s", wt.Response.Code, wt.path)
 		return
 	}
-	redirects := wt.Response.Header().Values("Location")
-	if len(redirects) == 0 {
-		wt.t.Errorf("No redirect header for path %s", wt.path)
-		return
-	}
-	redirectTo := redirects[0]
+	// redirects := wt.Response.Header().Values("Location")
+	// if len(redirects) == 0 {
+	// 	wt.t.Errorf("No redirect header for path %s", wt.path)
+	// 	return
+	// }
+	redirectTo := wt.RedirectTarget()
 	if redirectTo != expectedTarget {
 		wt.t.Errorf("Unexpected redirect target for path %s, %s != %s", wt.path, redirectTo, expectedTarget)
 	}
+}
+
+func (wt *WebTest) RedirectTarget() string {
+	redirects := wt.Response.Header().Values("Location")
+	if len(redirects) == 0 {
+		wt.t.Errorf("No redirect header for path %s", wt.path)
+		return ""
+	}
+	return redirects[0]
 }
 
 func (wt *WebTest) AssertBodyContains(query string, expected string) {

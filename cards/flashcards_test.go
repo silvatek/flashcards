@@ -13,6 +13,15 @@ func TestGetCard(t *testing.T) {
 	}
 }
 
+func TestGetMissingCard(t *testing.T) {
+	deck := Deck{
+		ID: "TEST-CODE",
+	}
+
+	if deck.GetCard("1").ID != "" {
+		t.Errorf("getCard returned a card with an ID when getting missing card")
+	}
+}
 func TestRandomCard(t *testing.T) {
 	deck := Deck{
 		ID: "TEST-CODE",
@@ -38,5 +47,12 @@ func TestRandomCard(t *testing.T) {
 			t.Errorf("All %d counts were %s", iterations, c)
 		}
 	}
+}
 
+func TestRandomDeckId(t *testing.T) {
+	id := RandomDeckId()
+
+	if len(id) != 9 {
+		t.Errorf("Random deck ID was not 9 characters (%d)", len(id))
+	}
 }

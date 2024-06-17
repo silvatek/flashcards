@@ -52,12 +52,14 @@ func (deck *Deck) GetCard(id string) Card {
 
 func (deck *Deck) RandomCard() Card {
 	cardCount := len(deck.Cards)
+	randomCard := Card{ID: "ERROR"}
 	counter := rand.Intn(cardCount)
 	for _, card := range deck.Cards {
 		if counter == 0 {
-			return card
+			randomCard = card
+			break
 		}
 		counter--
 	}
-	panic("Unable to pick a random card")
+	return randomCard
 }

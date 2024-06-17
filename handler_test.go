@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"flashcards/platform"
@@ -69,4 +72,58 @@ func TestUnknownError(t *testing.T) {
 	applicationRouter().ServeHTTP(wt.Response, wt.Request)
 
 	wt.AssertBodyContains(".error", "Unknown error 9999")
+}
+
+func TestDeckRedirect(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	wt := test.NewWebTest(t)
+	wt.SendGet("/decks?deck=1234")
+
+	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+
+	wt.AssertRedirectTo("/deck/1234")
+}
+
+func TestDeckUrl(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	r.Host = "localhost:8080"
+	if deckUrl(r, "1234") != "http://localhost:8080/deck/1234" {
+		t.Errorf("Unexpected local deck URL: %s", deckUrl(r, "1234"))
+	}
+
+	r.Host = "someserver"
+	if deckUrl(r, "1234") != "https://someserver/deck/1234" {
+		t.Errorf("Unexpected hosted deck URL: %s", deckUrl(r, "1234"))
+	}
+}
+
+func TestNewDeck(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	wt := test.NewWebTest(t)
+	wt.SendPost("/newdeck", map[string]string{
+		"title":  "testing",
+		"author": "guessme",
+	})
+
+	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+
+	if !strings.HasPrefix(wt.RedirectTarget(), "/deck/") {
+		t.Errorf("Posting new deck did not result in redirect to deck URL: %s", wt.RedirectTarget())
+	}
+}
+
+func TestNewDeckBadAuthor(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	wt := test.NewWebTest(t)
+	wt.SendPost("/newdeck", map[string]string{
+		"title":  "testing",
+		"author": "badkey",
+	})
+
+	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+
+	wt.AssertRedirectTo("/error?code=3001")
 }
