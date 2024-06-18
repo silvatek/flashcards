@@ -132,7 +132,7 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pageData{
-		Deck:  dataStore.GetDeck(context.Background(), deckID),
+		Deck:  dataStore.GetDeck(ctx, deckID),
 		Share: shareUrl,
 	}
 
