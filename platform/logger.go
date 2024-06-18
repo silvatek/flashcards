@@ -46,8 +46,8 @@ func ParseCloudTrace(trace string) (string, string, string) {
 
 		if len(parts) >= 2 {
 			if strings.Contains(parts[1], ";") {
-				parts2 := strings.Split(parts[2], ";")
-				return parts[0], parts2[0], parts2[1]
+				spanParts := strings.Split(parts[1], ";")
+				return parts[0], spanParts[0], spanParts[1]
 			} else {
 				return parts[0], parts[1], ""
 			}
