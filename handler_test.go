@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"flashcards/platform"
@@ -110,9 +109,7 @@ func TestNewDeck(t *testing.T) {
 
 	applicationRouter().ServeHTTP(wt.Response, wt.Request)
 
-	if !strings.HasPrefix(wt.RedirectTarget(), "/deck/") {
-		t.Errorf("Posting new deck did not result in redirect to deck URL: %s", wt.RedirectTarget())
-	}
+	wt.AssertRedirectToPrefix("/deck/")
 }
 
 func TestNewDeckBadAuthor(t *testing.T) {
@@ -146,4 +143,30 @@ func TestCardPage(t *testing.T) {
 	wt.AssertSuccess()
 	wt.AssertBodyContains("title", "Flashcards - Test flashcard deck - Card")
 	wt.AssertBodyContains("h1", "FlashCard")
+}
+
+func TestRandomCardPage(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	wt := test.NewWebTest(t)
+	wt.SendGet("/random?deck=TEST-CODE")
+
+	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+
+	wt.AssertRedirectToPrefix("/deck/TEST-CODE/card")
+}
+
+func TestRandomCardBadDeck(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	wt := test.NewWebTest(t)
+	wt.SendGet("/random?deck=BAD-CODE")
+
+	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+
+	wt.AssertRedirectTo("/")
 }

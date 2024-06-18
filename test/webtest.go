@@ -67,14 +67,20 @@ func (wt *WebTest) AssertRedirectTo(expectedTarget string) {
 		wt.t.Errorf("Non-redirect response code (%d) for path %s", wt.Response.Code, wt.path)
 		return
 	}
-	// redirects := wt.Response.Header().Values("Location")
-	// if len(redirects) == 0 {
-	// 	wt.t.Errorf("No redirect header for path %s", wt.path)
-	// 	return
-	// }
 	redirectTo := wt.RedirectTarget()
 	if redirectTo != expectedTarget {
 		wt.t.Errorf("Unexpected redirect target for path %s, %s != %s", wt.path, redirectTo, expectedTarget)
+	}
+}
+
+func (wt *WebTest) AssertRedirectToPrefix(expectedTargetPrefix string) {
+	if wt.Response.Code != http.StatusSeeOther {
+		wt.t.Errorf("Non-redirect response code (%d) for path %s", wt.Response.Code, wt.path)
+		return
+	}
+	redirectTo := wt.RedirectTarget()
+	if !strings.HasPrefix(redirectTo, expectedTargetPrefix) {
+		wt.t.Errorf("Unexpected redirect target prefix for path %s, %s != %s", wt.path, redirectTo, expectedTargetPrefix)
 	}
 }
 
