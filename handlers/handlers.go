@@ -339,7 +339,7 @@ func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
 
 type LogEntry struct {
 	Severity    string            `json:"severity"`
-	TimeStamp   time.Time         `json:"timestamp"`
+	Timestamp   time.Time         `json:"timestamp"`
 	Message     interface{}       `json:"message,omitempty"`
 	TextPayload interface{}       `json:"textPayload,omitempty"`
 	Labels      map[string]string `json:"logging.googleapis.com/labels,omitempty"`
@@ -370,42 +370,42 @@ func logTest(w http.ResponseWriter, r *http.Request) {
 		{
 			Severity:  "INFO",
 			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
-			TimeStamp: time.Now(),
+			Timestamp: time.Now(),
 		},
 		{
 			Severity:    "ERROR",
-			TimeStamp:   time.Now(),
+			Timestamp:   time.Now(),
 			TextPayload: fmt.Sprintf("TextPayload test %s", cards.RandomDeckId()),
 		},
 		{
 			Severity:  "DEBUG",
-			TimeStamp: time.Now(),
+			Timestamp: time.Now(),
 			Message:   fmt.Sprintf("Labels test %s", cards.RandomDeckId()),
 			Labels:    map[string]string{"appname": "flashcards"},
 		},
 		{
 			Severity:  "INFO",
-			TimeStamp: time.Now(),
+			Timestamp: time.Now(),
 			Message:   fmt.Sprintf("Trace test %s", cards.RandomDeckId()),
 			TraceID:   "100001",
 			SpanID:    "1",
 		},
 		{
 			Severity:    "INFO",
-			TimeStamp:   time.Now(),
+			Timestamp:   time.Now(),
 			Message:     fmt.Sprintf("Request test %s", cards.RandomDeckId()),
 			HttpRequest: HttpRequestLog{RequestMethod: "GET", RequestUrl: "/"},
 		},
 		{
 			Severity:  "DEBUG",
-			TimeStamp: time.Now(),
+			Timestamp: time.Now(),
 			Message:   fmt.Sprintf("Trace test 2 %s", cards.RandomDeckId()),
 			TraceID:   traceID,
 			SpanID:    spanID,
 		},
 		{
 			Severity:    "DEBUG",
-			TimeStamp:   time.Now(),
+			Timestamp:   time.Now(),
 			Message:     fmt.Sprintf("Request test 2 %s", cards.RandomDeckId()),
 			HttpRequest: hrl,
 			TraceID:     traceID,

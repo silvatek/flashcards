@@ -7,7 +7,7 @@ import (
 )
 
 type GooglePlatform struct {
-	logs GcpLogger
+	logs GcpLogger2
 }
 
 func RunningOnGCloud() bool {
@@ -15,7 +15,7 @@ func RunningOnGCloud() bool {
 }
 
 func (platform *GooglePlatform) Logger() platform.Logger {
-	platform.logs.init()
+	//platform.logs.init()
 	return &platform.logs
 }
 
