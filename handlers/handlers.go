@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
@@ -53,6 +55,7 @@ func ApplicationRouter(platform platform.Platform) *mux.Router {
 	r.HandleFunc("/newdeck", newDeck)
 	r.HandleFunc("/error", errorPage)
 	r.HandleFunc("/qrcode", qrCodeGenerator)
+	r.HandleFunc("/logtest", logTest)
 
 	addStaticAssetRouter(r)
 
@@ -331,4 +334,20 @@ func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
 
 	q, _ := qrcode.New(gameUrl, qrcode.High)
 	q.Write(320, w)
+}
+
+type LogEntry struct {
+	Severity  string      `json:"severity"`
+	Message   interface{} `json:"message"`
+	TimeStamp time.Time   `json:"timestamp"`
+}
+
+func logTest(w http.ResponseWriter, r *http.Request) {
+	entry := LogEntry{
+		Severity:  "INFO",
+		Message:   fmt.Sprintf("Test log entry %v", time.Now()),
+		TimeStamp: time.Now(),
+	}
+	json.NewEncoder(os.Stderr).Encode(entry)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
