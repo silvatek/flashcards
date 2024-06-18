@@ -2,6 +2,7 @@ package platform
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -22,7 +23,7 @@ type ConsoleLogger struct {
 
 func HttpRequestFromContext(ctx context.Context) *http.Request {
 	req := ctx.Value(HttpRequestKey)
-	if req != nil {
+	if req == nil {
 		return nil
 	}
 	req2, ok := req.(*http.Request)
@@ -37,7 +38,9 @@ func (logger *ConsoleLogger) Debug(template string, args ...any) {
 }
 
 func (logger *ConsoleLogger) DebugCtx(ctx context.Context, template string, args ...any) {
-
+	if HttpRequestFromContext(ctx) != nil {
+		fmt.Printf("Context has request: %s\n", HttpRequestFromContext(ctx).Method)
+	}
 	log.Printf("DEBUG "+template, args...)
 }
 

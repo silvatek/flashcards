@@ -119,10 +119,12 @@ func deckRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func deckPage(w http.ResponseWriter, r *http.Request) {
-	logs.Debug("Deck page %s", r.RequestURI)
+	ctx := context.WithValue(r.Context(), platform.HttpRequestKey, r)
+
+	logs.DebugCtx(ctx, "Deck page %s", r.RequestURI)
 	deckID := mux.Vars(r)["id"]
 
-	logs.Debug("Showing deck %s", deckID)
+	logs.DebugCtx(ctx, "Showing deck %s", deckID)
 
 	var shareUrl string
 	if r.FormValue("share") == "true" {
@@ -144,7 +146,6 @@ func deckPage(w http.ResponseWriter, r *http.Request) {
 	history.setCookie(w)
 
 	showTemplatePage("deck", data, w)
-
 }
 
 func deckUrl(r *http.Request, deckID string) string {

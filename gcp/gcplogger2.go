@@ -60,7 +60,6 @@ func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template
 		Severity:  severity,
 		Timestamp: time.Now(),
 		Message:   fmt.Sprintf(template, args...),
-		Labels:    labels,
 	}
 
 	req := platform.HttpRequestFromContext(ctx)
@@ -72,7 +71,11 @@ func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template
 			entry.TraceID = parts[0]
 			entry.SpanID = parts[1]
 		}
+	} else {
+		labels["hasRequest"] = "false"
 	}
+
+	entry.Labels = labels
 
 	logger.encoder.Encode(entry)
 }
