@@ -26,6 +26,10 @@ func (logger *GcpLogger) Debug(template string, args ...any) {
 	logger.log(logging.Debug, template, args...)
 }
 
+func (logger *GcpLogger) DebugCtx(ctx context.Context, template string, args ...any) {
+	logger.Debug(template, args...)
+}
+
 func (logger *GcpLogger) Info(template string, args ...any) {
 	logger.log(logging.Info, template, args...)
 }

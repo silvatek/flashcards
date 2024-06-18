@@ -97,9 +97,11 @@ func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
 
 // show home/index page
 func homePage(w http.ResponseWriter, r *http.Request) {
-	logs.Debug("Received request: %s %s", r.Method, r.URL.Path)
+	ctx := context.WithValue(r.Context(), platform.HttpRequestKey, r)
 
-	logTest(w, r)
+	logs.DebugCtx(ctx, "Received request: %s %s", r.Method, r.URL.Path)
+
+	//logTest(w, r)
 
 	data := pageData{
 		Message: "Fashcards",

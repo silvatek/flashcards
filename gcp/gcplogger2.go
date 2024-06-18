@@ -1,10 +1,14 @@
 package gcp
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
+
+	"flashcards/platform"
 )
 
 type GcpLogger2 struct {
@@ -28,18 +32,22 @@ type HttpRequestLog struct {
 }
 
 func (logger *GcpLogger2) Debug(template string, args ...any) {
-	logger.logJson("DEBUG", template, args...)
+	logger.DebugCtx(context.Background(), template, args...)
+}
+
+func (logger *GcpLogger2) DebugCtx(ctx context.Context, template string, args ...any) {
+	logger.logJson(ctx, "DEBUG", template, args...)
 }
 
 func (logger *GcpLogger2) Info(template string, args ...any) {
-	logger.logJson("INFO", template, args...)
+	logger.logJson(context.Background(), "INFO", template, args...)
 }
 
 func (logger *GcpLogger2) Error(template string, args ...any) {
-	logger.logJson("ERROR", template, args...)
+	logger.logJson(context.Background(), "ERROR", template, args...)
 }
 
-func (logger *GcpLogger2) logJson(severity string, template string, args ...any) {
+func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template string, args ...any) {
 	if logger.encoder == nil {
 		logger.encoder = json.NewEncoder(os.Stderr)
 	}
@@ -53,6 +61,17 @@ func (logger *GcpLogger2) logJson(severity string, template string, args ...any)
 		Timestamp: time.Now(),
 		Message:   fmt.Sprintf(template, args...),
 		Labels:    labels,
+	}
+
+	req := platform.HttpRequestFromContext(ctx)
+	if req != nil {
+		entry.HttpRequest = HttpRequestLog{RequestMethod: req.Method, RequestUrl: req.RequestURI}
+
+		if len(req.Header["X-Cloud-Trace-Context"]) > 0 {
+			parts := strings.Split(req.Header["X-Cloud-Trace-Context"][0], "/")
+			entry.TraceID = parts[0]
+			entry.SpanID = parts[1]
+		}
 	}
 
 	logger.encoder.Encode(entry)
