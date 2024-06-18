@@ -4,7 +4,6 @@ go 1.21.0
 
 require (
 	cloud.google.com/go/firestore v1.15.0
-	cloud.google.com/go/logging v1.10.0
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/gomarkdown/markdown v0.0.0-20240419095408-642f0ee99ae2
 	github.com/gorilla/mux v1.8.1

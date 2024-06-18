@@ -74,8 +74,6 @@ func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template
 			entry.TraceID = fmt.Sprintf("projects/%s/traces/%s", logger.project, traceID)
 			entry.SpanID = spanID
 		}
-	} else {
-		labels["hasRequest"] = "false"
 	}
 
 	entry.Labels = labels

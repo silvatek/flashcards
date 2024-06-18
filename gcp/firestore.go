@@ -49,7 +49,7 @@ func (store *FireDataStore) createClient(ctx context.Context, projectID string, 
 }
 
 func (store *FireDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
-	store.logs.Debug("Fetching Firestore deck %s", id)
+	store.logs.DebugCtx(ctx, "Fetching Firestore deck %s", id)
 
 	var deck cards.Deck
 
@@ -58,7 +58,7 @@ func (store *FireDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
 	if err != nil {
 		store.logs.Error("Error fetching deck %s, %v", id, err)
 	} else {
-		store.logs.Debug("Found game deck %s", id)
+		store.logs.DebugCtx(ctx, "Found game deck %s", id)
 
 		deckDoc.DataTo(&deck)
 	}
@@ -74,7 +74,7 @@ func (store *FireDataStore) PutDeck(ctx context.Context, id string, deck cards.D
 	if err != nil {
 		store.logs.Error("Error writing deck %v", err)
 	} else {
-		store.logs.Debug("Wrote deck document %s", id)
+		store.logs.DebugCtx(ctx, "Wrote deck document %s", id)
 	}
 }
 
