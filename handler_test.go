@@ -12,11 +12,10 @@ import (
 
 func TestIndexPage(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t)
-	wt.SendGet("/")
+	wt := test.NewWebTest(t, *applicationRouter())
 	defer wt.ShowBodyOnFail()
 
-	homePage(wt.Response, wt.Request)
+	wt.SendGet("/")
 
 	wt.AssertSuccess()
 	wt.AssertBodyContains("h1", "Flashcards")
@@ -27,11 +26,10 @@ func TestShowDeckPage(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t)
-	wt.SendGet("/deck/TEST-CODE")
+	wt := test.NewWebTest(t, *applicationRouter())
 	defer wt.ShowBodyOnFail()
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/deck/TEST-CODE")
 
 	wt.AssertSuccess()
 	wt.AssertBodyContains("title", "Flashcards - Test flashcard deck")
@@ -43,43 +41,39 @@ func TestDeckNotFound(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t)
-	wt.SendGet("/deck/BAD-CODE")
+	wt := test.NewWebTest(t, *applicationRouter())
 	defer wt.ShowBodyOnFail()
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/deck/BAD-CODE")
 
 	wt.AssertRedirectTo("/error?code=2001")
 }
 
 func TestErrorPage(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t)
-	wt.SendGet("/error?code=2002")
+	wt := test.NewWebTest(t, *applicationRouter())
 	defer wt.ShowBodyOnFail()
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/error?code=2002")
 
 	wt.AssertBodyContains(".error", "Card not found")
 }
 
 func TestUnknownError(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t)
-	wt.SendGet("/error?code=9999")
+	wt := test.NewWebTest(t, *applicationRouter())
 	defer wt.ShowBodyOnFail()
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/error?code=9999")
 
 	wt.AssertBodyContains(".error", "Unknown error 9999")
 }
 
 func TestDeckRedirect(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t)
-	wt.SendGet("/decks?deck=1234")
+	wt := test.NewWebTest(t, *applicationRouter())
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/decks?deck=1234")
 
 	wt.AssertRedirectTo("/deck/1234")
 }
@@ -101,13 +95,12 @@ func TestDeckUrl(t *testing.T) {
 func TestNewDeck(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
 	dataStore = platform.LocalPlatform().DataStore()
-	wt := test.NewWebTest(t)
+	wt := test.NewWebTest(t, *applicationRouter())
+
 	wt.SendPost("/newdeck", map[string]string{
 		"title":  "testing",
 		"author": "guessme",
 	})
-
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
 
 	wt.AssertRedirectToPrefix("/deck/")
 }
@@ -115,13 +108,12 @@ func TestNewDeck(t *testing.T) {
 func TestNewDeckBadAuthor(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
 	dataStore = platform.LocalPlatform().DataStore()
-	wt := test.NewWebTest(t)
+	wt := test.NewWebTest(t, *applicationRouter())
+
 	wt.SendPost("/newdeck", map[string]string{
 		"title":  "testing",
 		"author": "badkey",
 	})
-
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
 
 	wt.AssertRedirectTo("/error?code=3001")
 }
@@ -134,11 +126,10 @@ func TestCardPage(t *testing.T) {
 	deck := dataStore.GetDeck(context.Background(), "TEST-CODE")
 	card := deck.RandomCard()
 
-	wt := test.NewWebTest(t)
-	wt.SendGet("/deck/" + card.DeckID + "/card/" + card.ID)
+	wt := test.NewWebTest(t, *applicationRouter())
 	defer wt.ShowBodyOnFail()
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/deck/" + card.DeckID + "/card/" + card.ID)
 
 	wt.AssertSuccess()
 	wt.AssertBodyContains("title", "Flashcards - Test flashcard deck - Card")
@@ -150,10 +141,9 @@ func TestRandomCardPage(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t)
-	wt.SendGet("/random?deck=TEST-CODE")
+	wt := test.NewWebTest(t, *applicationRouter())
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
+	wt.SendGet("/random?deck=TEST-CODE")
 
 	wt.AssertRedirectToPrefix("/deck/TEST-CODE/card")
 }
@@ -163,10 +153,17 @@ func TestRandomCardBadDeck(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t)
+	wt := test.NewWebTest(t, *applicationRouter())
+
 	wt.SendGet("/random?deck=BAD-CODE")
 
-	applicationRouter().ServeHTTP(wt.Response, wt.Request)
-
 	wt.AssertRedirectTo("/")
+}
+
+func TestQrCodes(t *testing.T) {
+	wt := test.NewWebTest(t, *applicationRouter())
+
+	wt.SendGet("/qrcode?deck=TEST-CODE")
+
+	wt.AssertSuccess()
 }
