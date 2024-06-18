@@ -31,20 +31,16 @@ type HttpRequestLog struct {
 	RequestUrl    string `json:"requestUrl,omitempty"`
 }
 
-func (logger *GcpLogger2) Debug(template string, args ...any) {
-	logger.DebugCtx(context.Background(), template, args...)
-}
-
-func (logger *GcpLogger2) DebugCtx(ctx context.Context, template string, args ...any) {
+func (logger *GcpLogger2) Debug(ctx context.Context, template string, args ...any) {
 	logger.logJson(ctx, "DEBUG", template, args...)
 }
 
-func (logger *GcpLogger2) Info(template string, args ...any) {
-	logger.logJson(context.Background(), "INFO", template, args...)
+func (logger *GcpLogger2) Info(ctx context.Context, template string, args ...any) {
+	logger.logJson(ctx, "INFO", template, args...)
 }
 
-func (logger *GcpLogger2) Error(template string, args ...any) {
-	logger.logJson(context.Background(), "ERROR", template, args...)
+func (logger *GcpLogger2) Error(ctx context.Context, template string, args ...any) {
+	logger.logJson(ctx, "ERROR", template, args...)
 }
 
 func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template string, args ...any) {

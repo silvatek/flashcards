@@ -11,12 +11,13 @@ type History struct {
 }
 
 func getHistory(cookieName string, r *http.Request) History {
+	ctx := requestContext(r)
 	var history History
 	history.cookieName = cookieName
 	current, err := r.Cookie(cookieName)
 	if err != http.ErrNoCookie {
 		history.entries = strings.Split(current.Value, "|")
-		logs.Debug("Loaded  history: %v", history.entries)
+		logs.Debug(ctx, "Loaded  history: %v", history.entries)
 	}
 	return history
 }

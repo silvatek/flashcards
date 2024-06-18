@@ -6,9 +6,9 @@ import (
 	"flashcards/platform"
 )
 
-func SetupTestData(store platform.DataStore, logs platform.Logger) {
+func SetupTestData(ctx context.Context, store platform.DataStore, logs platform.Logger) {
 	if !store.IsEmpty() {
-		logs.Debug("Datastore is not empty so not adding test data")
+		logs.Debug(ctx, "Datastore is not empty so not adding test data")
 		return
 	}
 
@@ -36,7 +36,7 @@ func SetupTestData(store platform.DataStore, logs platform.Logger) {
 
 But [links](http://some.bad.site/) are disabled`, Hint: "Formatting"})
 
-	store.PutDeck(context.Background(), testDeck.ID, testDeck)
+	store.PutDeck(ctx, testDeck.ID, testDeck)
 
-	logs.Debug("Test data created in %s", store.Summary())
+	logs.Debug(ctx, "Test data created in %s", store.Summary())
 }

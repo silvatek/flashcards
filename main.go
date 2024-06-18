@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 
@@ -16,14 +17,16 @@ func main() {
 	addr := p.ListenAddress()
 	logs := p.Logger()
 
-	test.SetupTestData(p.DataStore(), logs)
+	ctx := context.Background()
 
-	logs.Info("Server listening on port %s", addr)
+	test.SetupTestData(ctx, p.DataStore(), logs)
+
+	logs.Info(ctx, "Server listening on port %s", addr)
 
 	router := handlers.ApplicationRouter(p)
 
 	if err := http.ListenAndServe(addr, router); err != nil {
-		logs.Error("Server listening error: %+v", err)
+		logs.Error(ctx, "Server listening error: %+v", err)
 		os.Exit(-5)
 	}
 }

@@ -2,17 +2,15 @@ package platform
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
 )
 
 type Logger interface {
-	Debug(template string, args ...any)
-	DebugCtx(ctx context.Context, template string, args ...any)
-	Info(template string, args ...any)
-	Error(template string, args ...any)
+	Debug(ctx context.Context, template string, args ...any)
+	Info(ctx context.Context, template string, args ...any)
+	Error(ctx context.Context, template string, args ...any)
 }
 
 type HttpRequestContext string
@@ -58,21 +56,14 @@ func ParseCloudTrace(trace string) (string, string, string) {
 	return "", "", ""
 }
 
-func (logger *ConsoleLogger) Debug(template string, args ...any) {
+func (logger *ConsoleLogger) Debug(ctx context.Context, template string, args ...any) {
 	log.Printf("DEBUG "+template, args...)
 }
 
-func (logger *ConsoleLogger) DebugCtx(ctx context.Context, template string, args ...any) {
-	if HttpRequestFromContext(ctx) != nil {
-		fmt.Printf("Context has request: %s\n", HttpRequestFromContext(ctx).Method)
-	}
-	log.Printf("DEBUG "+template, args...)
-}
-
-func (logger *ConsoleLogger) Info(template string, args ...any) {
+func (logger *ConsoleLogger) Info(ctx context.Context, template string, args ...any) {
 	log.Printf("INFO  "+template, args...)
 }
 
-func (logger *ConsoleLogger) Error(template string, args ...any) {
+func (logger *ConsoleLogger) Error(ctx context.Context, template string, args ...any) {
 	log.Printf("ERROR "+template, args...)
 }
