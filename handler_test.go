@@ -160,6 +160,50 @@ func TestRandomCardBadDeck(t *testing.T) {
 	wt.AssertRedirectTo("/")
 }
 
+func TestEditCardForm(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	deck := dataStore.GetDeck(context.Background(), "TEST-CODE")
+	cardID := deck.RandomCard().ID
+
+	wt := test.NewWebTest(t, *applicationRouter())
+
+	wt.SendGet("/editcard?deck=TEST-CODE&card=" + cardID)
+
+	wt.AssertSuccess()
+}
+
+func TestPostEditCard(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	deckID := "TEST-CODE"
+	deck := dataStore.GetDeck(context.Background(), deckID)
+	cardID := deck.RandomCard().ID
+
+	wt := test.NewWebTest(t, *applicationRouter())
+
+	wt.SendPost("/editcard", map[string]string{
+		"deck_id":  deckID,
+		"card_id":  cardID,
+		"question": "NewQ",
+		"answer":   "NewA",
+		"hint":     "NewH",
+	})
+
+	wt.AssertRedirectTo("/deck/" + deckID + "/card/" + cardID + "?answer=show")
+
+	deck = dataStore.GetDeck(context.Background(), deckID)
+	card := deck.Cards[cardID]
+
+	if card.Question != "NewQ" {
+		t.Errorf("Unexpected question after edit: %s", card.Question)
+	}
+}
+
 func TestQrCodes(t *testing.T) {
 	wt := test.NewWebTest(t, *applicationRouter())
 

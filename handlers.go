@@ -208,12 +208,10 @@ func addCard(w http.ResponseWriter, r *http.Request) {
 		deck := dataStore.GetDeck(context.Background(), deckID)
 
 		card := cards.Card{
-			ID:       cards.RandomCardId(),
-			DeckID:   deckID,
-			Question: r.Form.Get("question"),
-			Answer:   r.Form.Get("answer"),
-			Hint:     r.Form.Get("hint"),
+			ID:     cards.RandomCardId(),
+			DeckID: deckID,
 		}
+		updateCardFromForm(&card, r)
 
 		deck.AddCard(card)
 
@@ -245,11 +243,7 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 
 		card := deck.GetCard(cardID)
 
-		card.Question = r.Form.Get("question")
-		card.Answer = r.Form.Get("answer")
-		card.Hint = r.Form.Get("hint")
-
-		logs.Debug("New answer: %s", card.Answer)
+		updateCardFromForm(&card, r)
 
 		deck.PutCard(card.ID, card)
 
@@ -268,6 +262,12 @@ func editCard(w http.ResponseWriter, r *http.Request) {
 		}
 		showTemplatePage("editcard", data, w)
 	}
+}
+
+func updateCardFromForm(card *cards.Card, r *http.Request) {
+	card.Question = r.Form.Get("question")
+	card.Answer = r.Form.Get("answer")
+	card.Hint = r.Form.Get("hint")
 }
 
 func newDeck(w http.ResponseWriter, r *http.Request) {
