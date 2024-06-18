@@ -349,11 +349,23 @@ type LogEntry struct {
 }
 
 type HttpRequestLog struct {
-	RequestMethod string `json:requestMethod,omitempty`
-	RequestUrl    string `json:requestUrl,omitempty`
+	RequestMethod string `json:"requestMethod,omitempty"`
+	RequestUrl    string `json:"requestUrl,omitempty"`
 }
 
 func logTest(w http.ResponseWriter, r *http.Request) {
+	hrl := HttpRequestLog{}
+	hrl.RequestMethod = r.Method
+	hrl.RequestUrl = r.RequestURI
+
+	var traceID string
+	var spanID string
+
+	if len(r.Header["X-Cloud-Trace-Context"]) > 0 {
+		parts := strings.Split(r.Header["X-Cloud-Trace-Context"][0], "/")
+		traceID, spanID = parts[0], parts[1]
+	}
+
 	entries := []LogEntry{
 		{
 			Severity:  "INFO",
@@ -363,26 +375,41 @@ func logTest(w http.ResponseWriter, r *http.Request) {
 		{
 			Severity:    "ERROR",
 			TimeStamp:   time.Now(),
-			TextPayload: fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			TextPayload: fmt.Sprintf("TextPayload test %s", cards.RandomDeckId()),
 		},
 		{
 			Severity:  "DEBUG",
 			TimeStamp: time.Now(),
-			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			Message:   fmt.Sprintf("Labels test %s", cards.RandomDeckId()),
 			Labels:    map[string]string{"appname": "flashcards"},
 		},
 		{
+			Severity:  "INFO",
+			TimeStamp: time.Now(),
+			Message:   fmt.Sprintf("Trace test %s", cards.RandomDeckId()),
+			TraceID:   "100001",
+			SpanID:    "1",
+		},
+		{
+			Severity:    "INFO",
+			TimeStamp:   time.Now(),
+			Message:     fmt.Sprintf("Request test %s", cards.RandomDeckId()),
+			HttpRequest: HttpRequestLog{RequestMethod: "GET", RequestUrl: "/"},
+		},
+		{
 			Severity:  "DEBUG",
 			TimeStamp: time.Now(),
-			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
-			TraceID:   "100000000000001",
-			SpanID:    "1",
+			Message:   fmt.Sprintf("Trace test 2 %s", cards.RandomDeckId()),
+			TraceID:   traceID,
+			SpanID:    spanID,
 		},
 		{
 			Severity:    "DEBUG",
 			TimeStamp:   time.Now(),
-			Message:     fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
-			HttpRequest: HttpRequestLog{RequestMethod: "GET", RequestUrl: "/"},
+			Message:     fmt.Sprintf("Request test 2 %s", cards.RandomDeckId()),
+			HttpRequest: hrl,
+			TraceID:     traceID,
+			SpanID:      spanID,
 		},
 	}
 
