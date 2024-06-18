@@ -304,15 +304,10 @@ func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
 
 	gameUrl := deckUrl(r, deckID)
 
-	tempFileName := os.Getenv("TMPDIR") + "/" + deckID + ".png"
-
-	qrcode.WriteFile(gameUrl, qrcode.High, 320, tempFileName)
-	defer os.Remove(tempFileName)
-
-	content, _ := os.ReadFile(tempFileName)
-
 	headers := w.Header()
 	headers.Add("Content-Type", "image/png")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(content))
+
+	q, _ := qrcode.New(gameUrl, qrcode.High)
+	q.Write(320, w)
 }
