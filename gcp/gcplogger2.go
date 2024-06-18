@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"flashcards/platform"
@@ -13,6 +12,7 @@ import (
 
 type GcpLogger2 struct {
 	encoder *json.Encoder
+	project string
 }
 
 type LogEntry struct {
@@ -51,6 +51,9 @@ func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template
 	if logger.encoder == nil {
 		logger.encoder = json.NewEncoder(os.Stderr)
 	}
+	if logger.project == "" {
+		logger.project = os.Getenv("GCLOUD_PROJECT")
+	}
 
 	labels := map[string]string{
 		"appname": "flashcards",
@@ -66,10 +69,10 @@ func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template
 	if req != nil {
 		entry.HttpRequest = HttpRequestLog{RequestMethod: req.Method, RequestUrl: req.RequestURI}
 
-		if len(req.Header["X-Cloud-Trace-Context"]) > 0 {
-			parts := strings.Split(req.Header["X-Cloud-Trace-Context"][0], "/")
-			entry.TraceID = parts[0]
-			entry.SpanID = parts[1]
+		traceID, spanID, _ := platform.ParseCloudTraceHeader(req.Header["X-Cloud-Trace-Context"])
+		if traceID != "" {
+			entry.TraceID = fmt.Sprintf("projects/%s/traces/%s", logger.project, traceID)
+			entry.SpanID = spanID
 		}
 	} else {
 		labels["hasRequest"] = "false"
