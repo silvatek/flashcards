@@ -55,7 +55,6 @@ func ApplicationRouter(platform platform.Platform) *mux.Router {
 	r.HandleFunc("/newdeck", newDeck)
 	r.HandleFunc("/error", errorPage)
 	r.HandleFunc("/qrcode", qrCodeGenerator)
-	r.HandleFunc("/logtest", logTest)
 
 	addStaticAssetRouter(r)
 
@@ -99,6 +98,8 @@ func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
 // show home/index page
 func homePage(w http.ResponseWriter, r *http.Request) {
 	logs.Debug("Received request: %s %s", r.Method, r.URL.Path)
+
+	logTest(w, r)
 
 	data := pageData{
 		Message: "Fashcards",
@@ -337,10 +338,19 @@ func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
 }
 
 type LogEntry struct {
-	Severity    string      `json:"severity"`
-	TimeStamp   time.Time   `json:"timestamp"`
-	Message     interface{} `json:"message,omitempty"`
-	TextPayload interface{} `json:"textPayload,omitempty"`
+	Severity    string            `json:"severity"`
+	TimeStamp   time.Time         `json:"timestamp"`
+	Message     interface{}       `json:"message,omitempty"`
+	TextPayload interface{}       `json:"textPayload,omitempty"`
+	Labels      map[string]string `json:"logging.googleapis.com/labels,omitempty"`
+	TraceID     string            `json:"logging.googleapis.com/trace,omitempty"`
+	SpanID      string            `json:"logging.googleapis.com/spanId,omitempty"`
+	HttpRequest HttpRequestLog    `json:"httpRequest,omitempty"`
+}
+
+type HttpRequestLog struct {
+	RequestMethod string `json:requestMethod,omitempty`
+	RequestUrl    string `json:requestUrl,omitempty`
 }
 
 func logTest(w http.ResponseWriter, r *http.Request) {
@@ -351,9 +361,28 @@ func logTest(w http.ResponseWriter, r *http.Request) {
 			TimeStamp: time.Now(),
 		},
 		{
-			Severity:    "DEBUG",
-			TextPayload: fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			Severity:    "ERROR",
 			TimeStamp:   time.Now(),
+			TextPayload: fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+		},
+		{
+			Severity:  "DEBUG",
+			TimeStamp: time.Now(),
+			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			Labels:    map[string]string{"appname": "flashcards"},
+		},
+		{
+			Severity:  "DEBUG",
+			TimeStamp: time.Now(),
+			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			TraceID:   "100000000000001",
+			SpanID:    "1",
+		},
+		{
+			Severity:    "DEBUG",
+			TimeStamp:   time.Now(),
+			Message:     fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			HttpRequest: HttpRequestLog{RequestMethod: "GET", RequestUrl: "/"},
 		},
 	}
 
@@ -361,5 +390,4 @@ func logTest(w http.ResponseWriter, r *http.Request) {
 	for _, entry := range entries {
 		encoder.Encode(entry)
 	}
-	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
