@@ -5,25 +5,22 @@ import (
 	"os"
 
 	"flashcards/gcp"
+	"flashcards/handlers"
 	"flashcards/platform"
 	"flashcards/test"
 )
 
-var p platform.Platform
-var logs platform.Logger
-var dataStore platform.DataStore
-
 // main starts an http server on the $PORT environment variable.
 func main() {
-	p = getPlatform()
+	p := getPlatform()
 	addr := p.ListenAddress()
-	logs = p.Logger()
-	dataStore = p.DataStore()
-	test.SetupTestData(dataStore, logs)
+	logs := p.Logger()
+
+	test.SetupTestData(p.DataStore(), logs)
 
 	logs.Info("Server listening on port %s", addr)
 
-	router := applicationRouter()
+	router := handlers.ApplicationRouter(p)
 
 	if err := http.ListenAndServe(addr, router); err != nil {
 		logs.Error("Server listening error: %+v", err)

@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -11,8 +11,7 @@ import (
 )
 
 func TestIndexPage(t *testing.T) {
-	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
 	wt.SendGet("/")
@@ -26,7 +25,7 @@ func TestShowDeckPage(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
 	wt.SendGet("/deck/TEST-CODE")
@@ -37,11 +36,11 @@ func TestShowDeckPage(t *testing.T) {
 }
 
 func TestDeckNotFound(t *testing.T) {
-	logs = platform.LocalPlatform().Logger()
-	dataStore = platform.LocalPlatform().DataStore()
+	// logs = platform.LocalPlatform().Logger()
+	// dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
 	wt.SendGet("/deck/BAD-CODE")
@@ -50,8 +49,8 @@ func TestDeckNotFound(t *testing.T) {
 }
 
 func TestErrorPage(t *testing.T) {
-	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t, *applicationRouter())
+	// logs = platform.LocalPlatform().Logger()
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
 	wt.SendGet("/error?code=2002")
@@ -61,7 +60,7 @@ func TestErrorPage(t *testing.T) {
 
 func TestUnknownError(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
 	wt.SendGet("/error?code=9999")
@@ -71,7 +70,7 @@ func TestUnknownError(t *testing.T) {
 
 func TestDeckRedirect(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendGet("/decks?deck=1234")
 
@@ -95,7 +94,7 @@ func TestDeckUrl(t *testing.T) {
 func TestNewDeck(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
 	dataStore = platform.LocalPlatform().DataStore()
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendPost("/newdeck", map[string]string{
 		"title":  "testing",
@@ -108,7 +107,7 @@ func TestNewDeck(t *testing.T) {
 func TestNewDeckBadAuthor(t *testing.T) {
 	logs = platform.LocalPlatform().Logger()
 	dataStore = platform.LocalPlatform().DataStore()
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendPost("/newdeck", map[string]string{
 		"title":  "testing",
@@ -126,7 +125,7 @@ func TestCardPage(t *testing.T) {
 	deck := dataStore.GetDeck(context.Background(), "TEST-CODE")
 	card := deck.RandomCard()
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
 	wt.SendGet("/deck/" + card.DeckID + "/card/" + card.ID)
@@ -141,7 +140,7 @@ func TestRandomCardPage(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendGet("/random?deck=TEST-CODE")
 
@@ -149,11 +148,8 @@ func TestRandomCardPage(t *testing.T) {
 }
 
 func TestRandomCardBadDeck(t *testing.T) {
-	logs = platform.LocalPlatform().Logger()
-	dataStore = platform.LocalPlatform().DataStore()
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	test.SetupTestData(dataStore, logs)
-
-	wt := test.NewWebTest(t, *applicationRouter())
 
 	wt.SendGet("/random?deck=BAD-CODE")
 
@@ -168,7 +164,7 @@ func TestEditCardForm(t *testing.T) {
 	deck := dataStore.GetDeck(context.Background(), "TEST-CODE")
 	cardID := deck.RandomCard().ID
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendGet("/editcard?deck=TEST-CODE&card=" + cardID)
 
@@ -184,7 +180,7 @@ func TestPostEditCard(t *testing.T) {
 	deck := dataStore.GetDeck(context.Background(), deckID)
 	cardID := deck.RandomCard().ID
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendPost("/editcard", map[string]string{
 		"deck_id":  deckID,
@@ -209,7 +205,7 @@ func TestAddCardForm(t *testing.T) {
 	dataStore = platform.LocalPlatform().DataStore()
 	test.SetupTestData(dataStore, logs)
 
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendGet("/newcard?deck=TEST-CODE")
 
@@ -222,7 +218,7 @@ func TestPostAddCard(t *testing.T) {
 	test.SetupTestData(dataStore, logs)
 
 	deckID := "TEST-CODE"
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendPost("/newcard", map[string]string{
 		"deck_id":  deckID,
@@ -235,7 +231,7 @@ func TestPostAddCard(t *testing.T) {
 }
 
 func TestQrCodes(t *testing.T) {
-	wt := test.NewWebTest(t, *applicationRouter())
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 
 	wt.SendGet("/qrcode?deck=TEST-CODE")
 

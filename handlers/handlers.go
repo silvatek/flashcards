@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 	"github.com/skip2/go-qrcode"
 
 	"flashcards/cards"
+	"flashcards/platform"
 )
 
 type pageData struct {
@@ -33,7 +34,13 @@ type pageData struct {
 
 const HISTORY_COOKIE = "deckHistory"
 
-func applicationRouter() *mux.Router {
+var logs platform.Logger
+var dataStore platform.DataStore
+
+func ApplicationRouter(platform platform.Platform) *mux.Router {
+	logs = platform.Logger()
+	dataStore = platform.DataStore()
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", homePage)
@@ -52,14 +59,28 @@ func applicationRouter() *mux.Router {
 	return r
 }
 
+func templateDir() string {
+	for _, path := range []string{"template", "../template"} {
+		_, err := os.Stat(path)
+		if !os.IsNotExist(err) {
+			return path
+		}
+	}
+	logs.Error("Unable to locate template files")
+	os.Exit(-4)
+	return ""
+}
+
 func addStaticAssetRouter(r *mux.Router) {
-	fs := http.FileServer(http.Dir("template/static"))
+	staticDir := http.Dir(templateDir() + "/static")
+	logs.Debug("Static files in %v", staticDir)
+	fs := http.FileServer(staticDir)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 }
 
 func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
-	t, err := template.ParseFiles("template/" + templateName + ".html")
+	t, err := template.ParseFiles(templateDir() + "/" + templateName + ".html")
 	if err != nil {
 		logs.Error("Error parsing template: %+v", err)
 		os.Exit(-2)
