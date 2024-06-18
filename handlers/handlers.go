@@ -337,17 +337,29 @@ func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
 }
 
 type LogEntry struct {
-	Severity  string      `json:"severity"`
-	Message   interface{} `json:"message"`
-	TimeStamp time.Time   `json:"timestamp"`
+	Severity    string      `json:"severity"`
+	TimeStamp   time.Time   `json:"timestamp"`
+	Message     interface{} `json:"message,omitempty"`
+	TextPayload interface{} `json:"textPayload,omitempty"`
 }
 
 func logTest(w http.ResponseWriter, r *http.Request) {
-	entry := LogEntry{
-		Severity:  "INFO",
-		Message:   fmt.Sprintf("Test log entry %v", time.Now()),
-		TimeStamp: time.Now(),
+	entries := []LogEntry{
+		{
+			Severity:  "INFO",
+			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			TimeStamp: time.Now(),
+		},
+		{
+			Severity:    "DEBUG",
+			TextPayload: fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
+			TimeStamp:   time.Now(),
+		},
 	}
-	json.NewEncoder(os.Stderr).Encode(entry)
+
+	encoder := json.NewEncoder(os.Stderr)
+	for _, entry := range entries {
+		encoder.Encode(entry)
+	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
