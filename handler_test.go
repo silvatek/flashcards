@@ -204,6 +204,36 @@ func TestPostEditCard(t *testing.T) {
 	}
 }
 
+func TestAddCardForm(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	wt := test.NewWebTest(t, *applicationRouter())
+
+	wt.SendGet("/newcard?deck=TEST-CODE")
+
+	wt.AssertSuccess()
+}
+
+func TestPostAddCard(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	dataStore = platform.LocalPlatform().DataStore()
+	test.SetupTestData(dataStore, logs)
+
+	deckID := "TEST-CODE"
+	wt := test.NewWebTest(t, *applicationRouter())
+
+	wt.SendPost("/newcard", map[string]string{
+		"deck_id":  deckID,
+		"question": "NewQ",
+		"answer":   "NewA",
+		"hint":     "NewH",
+	})
+
+	wt.AssertRedirectTo("/deck/" + deckID)
+}
+
 func TestQrCodes(t *testing.T) {
 	wt := test.NewWebTest(t, *applicationRouter())
 
