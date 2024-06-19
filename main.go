@@ -16,17 +16,17 @@ func main() {
 	ctx := platform.NewStartupContext()
 
 	p := getPlatform(ctx)
-	addr := p.ListenAddress()
 	logs := p.Logger()
-
 	logs.Info(ctx, "Starting instance")
 
 	//logEnvironment(logs, ctx)
 
+	p.DataStore().Init(ctx)
 	test.SetupTestData(ctx, p.DataStore(), logs)
 
 	router := handlers.ApplicationRouter(p)
 
+	addr := p.ListenAddress()
 	logs.Info(ctx, "Server listening on port %s", addr)
 
 	if err := http.ListenAndServe(addr, router); err != nil {
@@ -45,6 +45,6 @@ func getPlatform(ctx context.Context) platform.Platform {
 	if gcp.RunningOnGCloud() {
 		return gcp.GcpPlatform(ctx)
 	} else {
-		return platform.LocalPlatform()
+		return platform.LocalPlatform(ctx)
 	}
 }

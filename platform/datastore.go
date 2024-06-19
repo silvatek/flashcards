@@ -8,6 +8,7 @@ import (
 
 type DataStore interface {
 	Summary() string
+	Init(ctx context.Context)
 	GetDeck(ctx context.Context, id string) cards.Deck
 	PutDeck(ctx context.Context, id string, deck cards.Deck)
 	IsEmpty() bool
@@ -22,7 +23,7 @@ func (store *TestDataStore) Summary() string {
 	return "TestDataStore"
 }
 
-func (store *TestDataStore) init(ctx context.Context) {
+func (store *TestDataStore) Init(ctx context.Context) {
 	store.decks = make(map[string]cards.Deck)
 }
 
@@ -36,7 +37,7 @@ func (store *TestDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
 
 func (store *TestDataStore) PutDeck(ctx context.Context, id string, deck cards.Deck) {
 	if store.decks == nil {
-		store.init(context.Background())
+		store.Init(ctx)
 	}
 	store.decks[id] = deck
 }

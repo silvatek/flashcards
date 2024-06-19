@@ -20,7 +20,6 @@ func RunningOnGCloud() bool {
 func GcpPlatform(ctx context.Context) *GooglePlatform {
 	gcp := GooglePlatform{}
 	gcp.store = *fireDataStore(&gcp.logs, ctx)
-	gcp.store.init(ctx)
 	gcp.project = os.Getenv("GCLOUD_PROJECT")
 	return &gcp
 }

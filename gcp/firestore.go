@@ -78,7 +78,7 @@ func (store *FireDataStore) PutDeck(ctx context.Context, id string, deck cards.D
 	}
 }
 
-func (store *FireDataStore) init(ctx context.Context) {
+func (store *FireDataStore) Init(ctx context.Context) {
 	store.Client, store.Err = store.createClient(ctx, store.Project, store.Database)
 	store.logs.Info(ctx, "Initialised firestore")
 }

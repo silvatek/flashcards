@@ -29,12 +29,12 @@ type TestPlatform struct {
 	store TestDataStore
 }
 
-func LocalPlatform() Platform {
+func LocalPlatform(ctx context.Context) Platform {
 	if platform == nil {
 		tp := &TestPlatform{}
 		tp.logs = *new(ConsoleLogger)
 		tp.store = *new(TestDataStore)
-		tp.store.init(context.Background())
+		tp.store.Init(ctx)
 		platform = tp
 	}
 	return platform
