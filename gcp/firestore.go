@@ -9,7 +9,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 
-	"flashcards/cards"
+	"flashcards/internal/cards"
 	"flashcards/platform"
 )
 

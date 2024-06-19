@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"flashcards/cards"
+	"flashcards/internal/cards"
 	"flashcards/platform"
 	"flashcards/test"
 )

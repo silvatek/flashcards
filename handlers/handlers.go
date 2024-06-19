@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/skip2/go-qrcode"
 
-	"flashcards/cards"
+	"flashcards/internal/cards"
 	"flashcards/platform"
 )
 

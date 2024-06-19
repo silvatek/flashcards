@@ -2,7 +2,7 @@ package test
 
 import (
 	"context"
-	"flashcards/cards"
+	"flashcards/internal/cards"
 	"flashcards/platform"
 )
 
