@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"flashcards/internal/pkg/gcp"
-	"flashcards/internal/pkg/handlers"
-	"flashcards/internal/pkg/platform"
-	"flashcards/internal/pkg/test"
+	"flashcards/internal/gcp"
+	"flashcards/internal/handlers"
+	"flashcards/internal/platform"
+	"flashcards/internal/test"
 )
 
 // main starts an http server on the $PORT environment variable.

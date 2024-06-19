@@ -13,8 +13,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/skip2/go-qrcode"
 
-	"flashcards/internal/pkg/cards"
-	"flashcards/internal/pkg/platform"
+	"flashcards/internal/cards"
+	"flashcards/internal/platform"
 )
 
 type pageData struct {

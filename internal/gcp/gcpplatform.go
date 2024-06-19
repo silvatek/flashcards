@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"flashcards/internal/pkg/platform"
+	"flashcards/internal/platform"
 )
 
 type GooglePlatform struct {

@@ -3,7 +3,7 @@ package platform
 import (
 	"context"
 
-	"flashcards/internal/pkg/cards"
+	"flashcards/internal/cards"
 )
 
 type DataStore interface {

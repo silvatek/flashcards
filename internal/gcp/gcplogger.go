@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"flashcards/internal/pkg/platform"
+	"flashcards/internal/platform"
 )
 
 type GcpLogger struct {
