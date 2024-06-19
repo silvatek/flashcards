@@ -2,8 +2,8 @@ package test
 
 import (
 	"context"
-	"flashcards/internal/cards"
-	"flashcards/platform"
+	"flashcards/internal/pkg/cards"
+	"flashcards/internal/pkg/platform"
 )
 
 func SetupTestData(ctx context.Context, store platform.DataStore, logs platform.Logger) {

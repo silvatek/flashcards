@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"flashcards/internal/cards"
-	"flashcards/platform"
-	"flashcards/test"
+	"flashcards/internal/pkg/cards"
+	"flashcards/internal/pkg/platform"
+	"flashcards/internal/pkg/test"
 )
 
 var p platform.Platform

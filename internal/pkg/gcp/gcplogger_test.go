@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"flashcards/platform"
+	"flashcards/internal/pkg/platform"
 )
 
 func TestAddRequestDetails(t *testing.T) {

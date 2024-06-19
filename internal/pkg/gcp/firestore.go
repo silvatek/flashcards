@@ -9,8 +9,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 
-	"flashcards/internal/cards"
-	"flashcards/platform"
+	"flashcards/internal/pkg/cards"
+	"flashcards/internal/pkg/platform"
 )
 
 const DECK_COLLECTION = "Decks"
