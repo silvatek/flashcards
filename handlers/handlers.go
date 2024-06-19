@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -367,70 +366,4 @@ type LogEntry struct {
 type HttpRequestLog struct {
 	RequestMethod string `json:"requestMethod,omitempty"`
 	RequestUrl    string `json:"requestUrl,omitempty"`
-}
-
-func logTest(w http.ResponseWriter, r *http.Request) {
-	hrl := HttpRequestLog{}
-	hrl.RequestMethod = r.Method
-	hrl.RequestUrl = r.RequestURI
-
-	var traceID string
-	var spanID string
-
-	if len(r.Header["X-Cloud-Trace-Context"]) > 0 {
-		parts := strings.Split(r.Header["X-Cloud-Trace-Context"][0], "/")
-		traceID, spanID = parts[0], parts[1]
-	}
-
-	entries := []LogEntry{
-		{
-			Severity:  "INFO",
-			Message:   fmt.Sprintf("Test log entry %s", cards.RandomDeckId()),
-			Timestamp: time.Now(),
-		},
-		{
-			Severity:    "ERROR",
-			Timestamp:   time.Now(),
-			TextPayload: fmt.Sprintf("TextPayload test %s", cards.RandomDeckId()),
-		},
-		{
-			Severity:  "DEBUG",
-			Timestamp: time.Now(),
-			Message:   fmt.Sprintf("Labels test %s", cards.RandomDeckId()),
-			Labels:    map[string]string{"appname": "flashcards"},
-		},
-		{
-			Severity:  "INFO",
-			Timestamp: time.Now(),
-			Message:   fmt.Sprintf("Trace test %s", cards.RandomDeckId()),
-			TraceID:   "100001",
-			SpanID:    "1",
-		},
-		{
-			Severity:    "INFO",
-			Timestamp:   time.Now(),
-			Message:     fmt.Sprintf("Request test %s", cards.RandomDeckId()),
-			HttpRequest: HttpRequestLog{RequestMethod: "GET", RequestUrl: "/"},
-		},
-		{
-			Severity:  "DEBUG",
-			Timestamp: time.Now(),
-			Message:   fmt.Sprintf("Trace test 2 %s", cards.RandomDeckId()),
-			TraceID:   traceID,
-			SpanID:    spanID,
-		},
-		{
-			Severity:    "DEBUG",
-			Timestamp:   time.Now(),
-			Message:     fmt.Sprintf("Request test 2 %s", cards.RandomDeckId()),
-			HttpRequest: hrl,
-			TraceID:     traceID,
-			SpanID:      spanID,
-		},
-	}
-
-	encoder := json.NewEncoder(os.Stderr)
-	for _, entry := range entries {
-		encoder.Encode(entry)
-	}
 }
