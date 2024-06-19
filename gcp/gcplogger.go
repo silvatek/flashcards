@@ -60,6 +60,7 @@ func (logger *GcpLogger) logJson(ctx context.Context, severity string, template 
 	}
 
 	logger.addRequestDetails(&entry, ctx)
+	logger.addStartupDetails(&entry, ctx)
 
 	entry.Labels = map[string]string{
 		"appname": "flashcards",
@@ -78,5 +79,17 @@ func (logger *GcpLogger) addRequestDetails(entry *LogEntry, ctx context.Context)
 			entry.TraceID = fmt.Sprintf("projects/%s/traces/%s", logger.project, traceID)
 			entry.SpanID = spanID
 		}
+	}
+}
+
+func (logger *GcpLogger) addStartupDetails(entry *LogEntry, ctx context.Context) {
+	value := ctx.Value(platform.StartupContextKey)
+	if value == nil {
+		return
+	}
+	data, ok := value.(platform.StartupContextData)
+	if ok {
+		entry.TraceID = data.TraceID
+		entry.SpanID = data.SpanID
 	}
 }
