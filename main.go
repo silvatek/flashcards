@@ -22,7 +22,9 @@ func main() {
 	//logEnvironment(logs, ctx)
 
 	p.DataStore().Init(ctx)
-	test.SetupTestData(ctx, p.DataStore(), logs)
+	if p.DataStore().Summary() == "TestDataStore" {
+		test.SetupTestData(ctx, p.DataStore(), logs)
+	}
 
 	router := handlers.ApplicationRouter(p)
 
