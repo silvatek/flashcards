@@ -2,6 +2,7 @@ package platform
 
 import (
 	"context"
+	"os"
 )
 
 type Platform interface {
@@ -38,4 +39,15 @@ func (platform *TestPlatform) DataStore() DataStore {
 
 func (platform *TestPlatform) ListenAddress() string {
 	return "127.0.0.1:8080"
+}
+
+func TemplateDir(logs Logger) string {
+	for _, path := range []string{"template", "../template"} {
+		_, err := os.Stat(path)
+		if !os.IsNotExist(err) {
+			return path
+		}
+	}
+	logs.Error(context.Background(), "Unable to locate template files")
+	return ""
 }
