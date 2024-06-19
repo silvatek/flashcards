@@ -7,8 +7,9 @@ import (
 )
 
 func SetupTestData(ctx context.Context, store platform.DataStore, logs platform.Logger) {
+	logs.Debug(ctx, "Checking if datastore is empty")
 	if !store.IsEmpty() {
-		logs.Debug(ctx, "Datastore is not empty so not adding test data")
+		logs.Info(ctx, "Datastore is not empty so not adding test data")
 		return
 	}
 
