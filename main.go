@@ -19,6 +19,8 @@ func main() {
 
 	ctx := context.Background()
 
+	logEnvironment(logs)
+
 	test.SetupTestData(ctx, p.DataStore(), logs)
 
 	logs.Info(ctx, "Server listening on port %s", addr)
@@ -28,6 +30,12 @@ func main() {
 	if err := http.ListenAndServe(addr, router); err != nil {
 		logs.Error(ctx, "Server listening error: %+v", err)
 		os.Exit(-5)
+	}
+}
+
+func logEnvironment(logs platform.Logger) {
+	for _, envvar := range os.Environ() {
+		logs.Debug(context.Background(), "EnvVar: %s", envvar)
 	}
 }
 
