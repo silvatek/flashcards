@@ -33,5 +33,5 @@ ENV GOTRACEBACK=single
 
 WORKDIR /flashcards
 COPY --from=build /app .
-COPY template ./template
+COPY web ./web
 ENTRYPOINT ["./app"]

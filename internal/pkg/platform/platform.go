@@ -53,7 +53,8 @@ func (platform *TestPlatform) ListenAddress() string {
 }
 
 func TemplateDir(logs Logger) string {
-	for _, path := range []string{"template", "../template", "../../template", "../../../template"} {
+	for _, path := range []string{"template", "../template", "../../template", "../../../template",
+		"web", "../web", "../../web", "../../../web"} {
 		_, err := os.Stat(path)
 		if !os.IsNotExist(err) {
 			return path
