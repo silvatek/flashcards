@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
@@ -339,20 +338,4 @@ func qrCodeGenerator(w http.ResponseWriter, r *http.Request) {
 
 	q, _ := qrcode.New(gameUrl, qrcode.High)
 	q.Write(320, w)
-}
-
-type LogEntry struct {
-	Severity    string            `json:"severity"`
-	Timestamp   time.Time         `json:"timestamp"`
-	Message     interface{}       `json:"message,omitempty"`
-	TextPayload interface{}       `json:"textPayload,omitempty"`
-	Labels      map[string]string `json:"logging.googleapis.com/labels,omitempty"`
-	TraceID     string            `json:"logging.googleapis.com/trace,omitempty"`
-	SpanID      string            `json:"logging.googleapis.com/spanId,omitempty"`
-	HttpRequest HttpRequestLog    `json:"httpRequest,omitempty"`
-}
-
-type HttpRequestLog struct {
-	RequestMethod string `json:"requestMethod,omitempty"`
-	RequestUrl    string `json:"requestUrl,omitempty"`
 }
