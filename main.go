@@ -15,13 +15,13 @@ import (
 func main() {
 	ctx := platform.NewStartupContext()
 
-	p := getPlatform()
+	p := getPlatform(ctx)
 	addr := p.ListenAddress()
 	logs := p.Logger()
 
 	logs.Info(ctx, "Starting instance")
 
-	logEnvironment(logs)
+	//logEnvironment(logs, ctx)
 
 	test.SetupTestData(ctx, p.DataStore(), logs)
 
@@ -35,15 +35,15 @@ func main() {
 	}
 }
 
-func logEnvironment(logs platform.Logger) {
+func logEnvironment(logs platform.Logger, ctx context.Context) {
 	for _, envvar := range os.Environ() {
-		logs.Debug(context.Background(), "EnvVar: %s", envvar)
+		logs.Debug(ctx, "EnvVar: %s", envvar)
 	}
 }
 
-func getPlatform() platform.Platform {
+func getPlatform(ctx context.Context) platform.Platform {
 	if gcp.RunningOnGCloud() {
-		return &gcp.GooglePlatform{}
+		return gcp.GcpPlatform(ctx)
 	} else {
 		return platform.LocalPlatform()
 	}

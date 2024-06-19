@@ -24,12 +24,12 @@ type FireDataStore struct {
 	logs     platform.Logger
 }
 
-func fireDataStore(logs platform.Logger) *FireDataStore {
+func fireDataStore(logs platform.Logger, ctx context.Context) *FireDataStore {
 	store := new(FireDataStore)
 	store.Project = os.Getenv("GCLOUD_PROJECT")
 	store.Database = os.Getenv("FIRESTORE_DB_NAME")
 	store.logs = logs
-	logs.Info(context.Background(), "Opening Firestore datastore %s, %s", store.Project, store.Database)
+	logs.Info(ctx, "Opening Firestore datastore %s, %s", store.Project, store.Database)
 	return store
 }
 
@@ -78,8 +78,7 @@ func (store *FireDataStore) PutDeck(ctx context.Context, id string, deck cards.D
 	}
 }
 
-func (store *FireDataStore) init() {
-	ctx := context.Background()
+func (store *FireDataStore) init(ctx context.Context) {
 	store.Client, store.Err = store.createClient(ctx, store.Project, store.Database)
 	store.logs.Info(ctx, "Initialised firestore")
 }
