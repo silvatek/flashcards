@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"flashcards/platform"
@@ -236,4 +237,35 @@ func TestQrCodes(t *testing.T) {
 	wt.SendGet("/qrcode?deck=TEST-CODE")
 
 	wt.AssertSuccess()
+}
+
+func TestTemplateNotFound(t *testing.T) {
+	lr := test.LogRecorder{}
+	logs = &lr
+	w := httptest.NewRecorder()
+
+	showTemplatePage("notfound", nil, w)
+
+	if w.Result().StatusCode != 500 {
+		t.Errorf("Unexpected http response: %d", w.Result().StatusCode)
+	}
+	if !lr.HasEntryWithPrefix("ERROR Error parsing template") {
+		t.Error("Expected log entry not found")
+	}
+}
+
+func TestTemplateExecutionError(t *testing.T) {
+	lr := test.LogRecorder{}
+	logs = &lr
+	w := httptest.NewRecorder()
+
+	showTemplatePage("deck", "broken", w)
+
+	if !strings.Contains(w.Body.String(), "Internal Server Error") {
+		t.Errorf("Unexpected http response: %d", w.Result().StatusCode)
+		t.Log(w.Body)
+	}
+	if !lr.HasEntryWithPrefix("ERROR template.Execute") {
+		t.Error("Expected log entry not found")
+	}
 }

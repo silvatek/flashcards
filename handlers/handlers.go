@@ -83,8 +83,10 @@ func addStaticAssetRouter(r *mux.Router) {
 func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
 	t, err := template.ParseFiles(templateDir() + "/" + templateName + ".html")
 	if err != nil {
+		msg := http.StatusText(http.StatusInternalServerError)
 		logs.Error(context.Background(), "Error parsing template: %+v", err)
-		os.Exit(-2)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
 	}
 
 	if err := t.Execute(w, data); err != nil {
