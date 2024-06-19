@@ -7,7 +7,7 @@ import (
 )
 
 type GooglePlatform struct {
-	logs GcpLogger2
+	logs GcpLogger
 }
 
 func RunningOnGCloud() bool {

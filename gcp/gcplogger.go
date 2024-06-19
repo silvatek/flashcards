@@ -10,7 +10,7 @@ import (
 	"flashcards/platform"
 )
 
-type GcpLogger2 struct {
+type GcpLogger struct {
 	encoder *json.Encoder
 	project string
 }
@@ -31,28 +31,26 @@ type HttpRequestLog struct {
 	RequestUrl    string `json:"requestUrl,omitempty"`
 }
 
-func (logger *GcpLogger2) Debug(ctx context.Context, template string, args ...any) {
+const TRACE_HEADER_NAME = "X-Cloud-Trace-Context"
+
+func (logger *GcpLogger) Debug(ctx context.Context, template string, args ...any) {
 	logger.logJson(ctx, "DEBUG", template, args...)
 }
 
-func (logger *GcpLogger2) Info(ctx context.Context, template string, args ...any) {
+func (logger *GcpLogger) Info(ctx context.Context, template string, args ...any) {
 	logger.logJson(ctx, "INFO", template, args...)
 }
 
-func (logger *GcpLogger2) Error(ctx context.Context, template string, args ...any) {
+func (logger *GcpLogger) Error(ctx context.Context, template string, args ...any) {
 	logger.logJson(ctx, "ERROR", template, args...)
 }
 
-func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template string, args ...any) {
+func (logger *GcpLogger) logJson(ctx context.Context, severity string, template string, args ...any) {
 	if logger.encoder == nil {
 		logger.encoder = json.NewEncoder(os.Stderr)
 	}
 	if logger.project == "" {
 		logger.project = os.Getenv("GCLOUD_PROJECT")
-	}
-
-	labels := map[string]string{
-		"appname": "flashcards",
 	}
 
 	entry := LogEntry{
@@ -61,18 +59,24 @@ func (logger *GcpLogger2) logJson(ctx context.Context, severity string, template
 		Message:   fmt.Sprintf(template, args...),
 	}
 
+	logger.addRequestDetails(&entry, ctx)
+
+	entry.Labels = map[string]string{
+		"appname": "flashcards",
+	}
+
+	logger.encoder.Encode(entry)
+}
+
+func (logger *GcpLogger) addRequestDetails(entry *LogEntry, ctx context.Context) {
 	req := platform.HttpRequestFromContext(ctx)
 	if req != nil {
 		entry.HttpRequest = HttpRequestLog{RequestMethod: req.Method, RequestUrl: req.RequestURI}
 
-		traceID, spanID, _ := platform.ParseCloudTraceHeader(req.Header["X-Cloud-Trace-Context"])
+		traceID, spanID, _ := platform.ParseCloudTraceHeader(req.Header[TRACE_HEADER_NAME])
 		if traceID != "" {
 			entry.TraceID = fmt.Sprintf("projects/%s/traces/%s", logger.project, traceID)
 			entry.SpanID = spanID
 		}
 	}
-
-	entry.Labels = labels
-
-	logger.encoder.Encode(entry)
 }
