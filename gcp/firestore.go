@@ -29,7 +29,6 @@ func fireDataStore(logs platform.Logger, ctx context.Context) *FireDataStore {
 	store.Project = os.Getenv("GCLOUD_PROJECT")
 	store.Database = os.Getenv("FIRESTORE_DB_NAME")
 	store.logs = logs
-	logs.Info(ctx, "Opening Firestore datastore %s, %s", store.Project, store.Database)
 	return store
 }
 
@@ -37,14 +36,23 @@ func (store *FireDataStore) Summary() string {
 	return fmt.Sprintf("FireDataStore(%s,%s)", store.Project, store.Database)
 }
 
+func (store *FireDataStore) Init(ctx context.Context) {
+	store.Client, store.Err = store.createClient(ctx, store.Project, store.Database)
+	store.logs.Info(ctx, "Initialised firestore %s / %s", store.Project, store.Database)
+}
+
+func (store *FireDataStore) close() {
+	store.Client.Close()
+}
+
 func (store *FireDataStore) createClient(ctx context.Context, projectID string, database string) (*firestore.Client, error) {
+	store.logs.Debug(ctx, "Creating Firestore client")
 	client, err := firestore.NewClientWithDatabase(ctx, projectID, database)
 	if err == nil {
 		store.logs.Info(ctx, "Firestore client created: %s %s", projectID, database)
 	} else {
 		store.logs.Error(ctx, "Failed to create FireStore client: %v", err)
 	}
-	// Close client when done with "defer client.Close()"
 	return client, err
 }
 
@@ -76,15 +84,6 @@ func (store *FireDataStore) PutDeck(ctx context.Context, id string, deck cards.D
 	} else {
 		store.logs.Debug(ctx, "Wrote deck document %s", id)
 	}
-}
-
-func (store *FireDataStore) Init(ctx context.Context) {
-	store.Client, store.Err = store.createClient(ctx, store.Project, store.Database)
-	store.logs.Info(ctx, "Initialised firestore")
-}
-
-func (store *FireDataStore) close() {
-	store.Client.Close()
 }
 
 func (store *FireDataStore) IsEmpty() bool {
