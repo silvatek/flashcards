@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"flashcards/cards"
 	"flashcards/platform"
 	"flashcards/test"
 )
@@ -29,7 +30,7 @@ func TestShowDeckPage(t *testing.T) {
 	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
 	defer wt.ShowBodyOnFail()
 
-	wt.SendGet("/deck/TEST-CODE")
+	wt.SendGet("/deck/TEST-CODE?share=true")
 
 	wt.AssertSuccess()
 	wt.AssertBodyContains("title", "Flashcards - Test flashcard deck")
@@ -134,6 +135,30 @@ func TestCardPage(t *testing.T) {
 	wt.AssertSuccess()
 	wt.AssertBodyContains("title", "Flashcards - Test flashcard deck - Card")
 	wt.AssertBodyContains("h1", "FlashCard")
+}
+
+func TestCardNotFound(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
+
+	// Need to initialise datastore after creating the ApplicationRouter for the test
+	dataStore = &platform.TestDataStore{}
+	dataStore.PutDeck(context.Background(), "123", cards.Deck{ID: "123"})
+
+	wt.SendGet("/deck/123/card/789")
+
+	wt.AssertRedirectTo("/error?code=2002")
+}
+
+func TestCardDeckNotFound(t *testing.T) {
+	logs = platform.LocalPlatform().Logger()
+	wt := test.NewWebTest(t, *ApplicationRouter(platform.LocalPlatform()))
+
+	dataStore = &platform.TestDataStore{}
+
+	wt.SendGet("/deck/234/card/789")
+
+	wt.AssertRedirectTo("/error?code=2001")
 }
 
 func TestRandomCardPage(t *testing.T) {

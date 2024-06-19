@@ -35,6 +35,9 @@ func (store *TestDataStore) GetDeck(ctx context.Context, id string) cards.Deck {
 }
 
 func (store *TestDataStore) PutDeck(ctx context.Context, id string, deck cards.Deck) {
+	if store.decks == nil {
+		store.init(context.Background())
+	}
 	store.decks[id] = deck
 }
 
