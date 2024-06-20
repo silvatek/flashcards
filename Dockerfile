@@ -21,7 +21,7 @@ COPY . ./
 ARG SKAFFOLD_GO_GCFLAGS
 RUN echo "Go gcflags: ${SKAFFOLD_GO_GCFLAGS}"
 RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -mod=readonly ./internal/...
-RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -mod=readonly -v -o /app ./cmd
+RUN go build -gcflags="${SKAFFOLD_GO_GCFLAGS}" -mod=readonly -v -o /flashcards-sever ./cmd/server
 
 # Now create separate deployment image
 FROM gcr.io/distroless/static-debian11
@@ -32,6 +32,6 @@ FROM gcr.io/distroless/static-debian11
 ENV GOTRACEBACK=single
 
 WORKDIR /flashcards
-COPY --from=build /app .
+COPY --from=build /flashcards-sever .
 COPY web ./web
-ENTRYPOINT ["./app"]
+ENTRYPOINT ["./flashcards-sever"]

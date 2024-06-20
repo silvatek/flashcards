@@ -9,6 +9,7 @@
 *.dylib
 flashcards
 app
+flashcards-sever
 
 # Test binary, built with `go test -c`
 *.test
