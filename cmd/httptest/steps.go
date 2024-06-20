@@ -2,10 +2,7 @@ package main
 
 import (
 	"flashcards/internal/test"
-	"net/http"
 	"strings"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 func addFlashcardSteps(suite *test.TestSuite) {
@@ -16,25 +13,11 @@ func addFlashcardSteps(suite *test.TestSuite) {
 }
 
 func whenHomePageAccessed(data *test.StepData) {
-	openPage("/", data)
+	data.Suite.OpenPage("/")
 }
 
 func whenTestDeckAccessed(data *test.StepData) {
-	openPage("/deck/TEST-CODE", data)
-}
-
-func openPage(url string, data *test.StepData) {
-	response, err := http.Get(data.Suite.BaseUrl + url)
-
-	if err == nil {
-		if response.StatusCode < 400 {
-			data.Suite.CurrentPageDoc, _ = goquery.NewDocumentFromReader(response.Body)
-		} else {
-			data.Suite.ReportError("Http request failed, %s = %d", url, response.StatusCode)
-		}
-	} else {
-		data.Suite.ReportError("[%v]\n", err)
-	}
+	data.Suite.OpenPage("/deck/TEST-CODE")
 }
 
 func thenDeckHasQuestion(data *test.StepData) {
@@ -48,6 +31,7 @@ func thenDeckHasQuestion(data *test.StepData) {
 		questionText := question.FirstChild.Data
 		if strings.Contains(questionText, data.Step.Values[0]) {
 			found = true
+			data.Suite.ChecksPassed += 1
 			break
 		}
 	}
@@ -64,7 +48,9 @@ func thenPageContains(data *test.StepData) {
 
 	pageContent := data.Suite.CurrentPageDoc.Text()
 
-	if !strings.Contains(pageContent, data.Step.Values[0]) {
+	if strings.Contains(pageContent, data.Step.Values[0]) {
+		data.Suite.ChecksPassed += 1
+	} else {
 		data.Suite.ReportError("Page does not contain text: %s", data.Step.Values[0])
 	}
 }

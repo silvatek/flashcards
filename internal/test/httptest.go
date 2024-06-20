@@ -3,6 +3,7 @@ package test
 import (
 	"bufio"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -25,9 +26,13 @@ type TestSuite struct {
 	BaseUrl        string
 	CurrentPageDoc *goquery.Document
 	ScenarioStatus string
+	TotalScenarios int
+	TotalChecks    int
+	ChecksPassed   int
+	IsChecking     bool
 }
 
-func RunScript(scanner *bufio.Scanner, suite TestSuite) {
+func RunScript(scanner *bufio.Scanner, suite *TestSuite) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || line[0:1] == "#" {
@@ -40,6 +45,7 @@ func RunScript(scanner *bufio.Scanner, suite TestSuite) {
 		} else if strings.HasPrefix(line, "When ") {
 			suite.DoStep("WHEN", strings.TrimPrefix(line, "When "))
 		} else if strings.HasPrefix(line, "Then ") {
+			suite.IsChecking = true
 			suite.DoStep("THEN", strings.TrimPrefix(line, "Then "))
 		} else if strings.HasPrefix(line, "And ") {
 			suite.DoStep("AND", strings.TrimPrefix(line, "And "))
@@ -83,6 +89,8 @@ func (suite *TestSuite) NewScenario(title string) {
 	suite.Report("SCENARIO %s", title)
 	suite.CurrentPageDoc = nil
 	suite.ScenarioStatus = "NEW"
+	suite.IsChecking = false
+	suite.TotalScenarios += 1
 }
 
 func (suite *TestSuite) DoStep(stepType string, text string) {
@@ -97,6 +105,10 @@ func (suite *TestSuite) DoStep(stepType string, text string) {
 
 	parsedStep := ParseStep(text)
 
+	if suite.IsChecking {
+		suite.TotalChecks += 1
+	}
+
 	for _, step := range suite.Steps {
 		if step.parsed.Matches(parsedStep) {
 			fmt.Printf("%8s %s\n", stepType, text)
@@ -105,4 +117,26 @@ func (suite *TestSuite) DoStep(stepType string, text string) {
 		}
 	}
 	suite.ReportError("No step definition matches: %s\n", text)
+}
+
+func (suite *TestSuite) OpenPage(path string) {
+	response, err := http.Get(suite.BaseUrl + path)
+
+	if err == nil {
+		if response.StatusCode < 400 {
+			suite.CurrentPageDoc, _ = goquery.NewDocumentFromReader(response.Body)
+		} else {
+			suite.ReportError("Http request failed, %s = %d", path, response.StatusCode)
+		}
+	} else {
+		suite.ReportError("[%v]\n", err)
+	}
+}
+
+func (suite *TestSuite) Summary() {
+	fmt.Println("===========")
+	fmt.Printf("Test scenarios: %d\n", suite.TotalScenarios)
+	passrate := 100 * suite.ChecksPassed / suite.TotalChecks
+	fmt.Printf("Checks passed:  %d out of %d (%d%%)\n", suite.ChecksPassed, suite.TotalChecks, passrate)
+	fmt.Println("===========")
 }

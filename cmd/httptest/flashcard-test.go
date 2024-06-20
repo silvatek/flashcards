@@ -28,5 +28,7 @@ func main() {
 	f, _ := os.Open(featureFile)
 	defer f.Close()
 
-	test.RunScript(bufio.NewScanner(f), suite)
+	test.RunScript(bufio.NewScanner(f), &suite)
+
+	suite.Summary()
 }
