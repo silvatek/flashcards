@@ -29,7 +29,9 @@
 		<ul>
 		{{range $card := .Deck.Cards}} 
 			<li>
-				<a href="/deck/{{$card.DeckID}}/card/{{$card.ID}}?answer=hide">{{$card.Question}}</a>
+				<a href="/deck/{{$card.DeckID}}/card/{{$card.ID}}?answer=hide">
+					<span class="question">{{$card.Question}}</span>
+				</a>
 			</li>
 		{{end}}
 		</ul>
