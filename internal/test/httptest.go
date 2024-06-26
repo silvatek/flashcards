@@ -26,6 +26,7 @@ type TestSuite struct {
 	BaseUrl        string
 	CurrentPageDoc *goquery.Document
 	ScenarioStatus string
+	TotalFeatures  int
 	TotalScenarios int
 	TotalChecks    int
 	ChecksPassed   int
@@ -36,10 +37,11 @@ func RunScript(scanner *bufio.Scanner, suite *TestSuite) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || line[0:1] == "#" {
-			continue
-		}
-		if strings.HasPrefix(line, "Scenario: ") {
-			suite.NewScenario(strings.TrimSpace(strings.TrimPrefix(line, "Scenario: ")))
+			// no-op
+		} else if strings.HasPrefix(line, "Feature: ") {
+			suite.NewFeature(strings.TrimPrefix(line, "Feature: "))
+		} else if strings.HasPrefix(line, "Scenario: ") {
+			suite.NewScenario(strings.TrimPrefix(line, "Scenario: "))
 		} else if strings.HasPrefix(line, "Given ") {
 			suite.DoStep("GIVEN", strings.TrimPrefix(line, "Given "))
 		} else if strings.HasPrefix(line, "When ") {
@@ -50,7 +52,7 @@ func RunScript(scanner *bufio.Scanner, suite *TestSuite) {
 		} else if strings.HasPrefix(line, "And ") {
 			suite.DoStep("AND", strings.TrimPrefix(line, "And "))
 		} else {
-			fmt.Println(line)
+			fmt.Printf("Unsupported script element: %s\n", line)
 		}
 	}
 
@@ -81,6 +83,10 @@ func (suite *TestSuite) ReportScenarioResult() {
 	} else {
 		fmt.Println("  STATUS Scenario passed")
 	}
+}
+
+func (suite *TestSuite) NewFeature(title string) {
+	suite.TotalFeatures += 1
 }
 
 func (suite *TestSuite) NewScenario(title string) {
@@ -135,8 +141,9 @@ func (suite *TestSuite) OpenPage(path string) {
 
 func (suite *TestSuite) Summary() {
 	fmt.Println("===========")
-	fmt.Printf("Test scenarios: %d\n", suite.TotalScenarios)
+	fmt.Printf("Features tested: %d\n", suite.TotalFeatures)
+	fmt.Printf("Test scenarios:  %d\n", suite.TotalScenarios)
 	passrate := 100 * suite.ChecksPassed / suite.TotalChecks
-	fmt.Printf("Checks passed:  %d out of %d (%d%%)\n", suite.ChecksPassed, suite.TotalChecks, passrate)
+	fmt.Printf("Checks passed:   %d out of %d (%d%%)\n", suite.ChecksPassed, suite.TotalChecks, passrate)
 	fmt.Println("===========")
 }
