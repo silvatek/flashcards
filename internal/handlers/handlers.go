@@ -18,6 +18,7 @@ import (
 )
 
 type pageData struct {
+	Title      string
 	Message    string
 	Error      string
 	Deck       cards.Deck
@@ -67,7 +68,8 @@ func addStaticAssetRouter(r *mux.Router) {
 }
 
 func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
-	t, err := template.ParseFiles(platform.TemplateDir(logs) + "/" + templateName + ".html")
+	dir := platform.TemplateDir(logs)
+	t, err := template.ParseFiles(dir+"/base.html", dir+"/"+templateName+".html")
 	if err != nil {
 		msg := http.StatusText(http.StatusInternalServerError)
 		logs.Error(context.Background(), "Error parsing template: %+v", err)
@@ -75,7 +77,7 @@ func showTemplatePage(templateName string, data any, w http.ResponseWriter) {
 		return
 	}
 
-	if err := t.Execute(w, data); err != nil {
+	if err := t.ExecuteTemplate(w, "base", data); err != nil {
 		msg := http.StatusText(http.StatusInternalServerError)
 		logs.Error(context.Background(), "template.Execute: %v", err)
 		http.Error(w, msg, http.StatusInternalServerError)

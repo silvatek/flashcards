@@ -1,14 +1,4 @@
-<!doctype html>
-<html lang=en>
-<head>
-<meta charset=utf-8>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flascards - Error</title>
-<link rel="stylesheet" href="/static/flashcards.css">
-</head>
-
-<body>
-	<div class="container">
+{{define "content"}}
 		<h1>Something went wrong</h1>
 		<div class="message">
 			{{.Message}}
@@ -24,6 +14,4 @@
 				<a href="/">Home</a>
 			</div>
 		</div>
-	</div>
-</body>
-</html>
+{{end}}
